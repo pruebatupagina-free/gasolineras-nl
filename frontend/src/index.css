@@ -2,27 +2,31 @@
 @import "leaflet/dist/leaflet.css";
 
 :root {
-  --color-bg: #0F172A;
-  --color-primary: #1E293B;
-  --color-secondary: #334155;
-  --color-accent: #3B82F6;
-  --color-accent-hover: #2563EB;
-  --color-fg: #F8FAFC;
-  --color-muted: #94A3B8;
+  --color-bg: #050506;
+  --color-bg-deep: #020203;
+  --color-primary: #0a0a0c;
+  --color-secondary: #141416;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-accent: #5E6AD2;
+  --color-accent-hover: #4F5BC0;
+  --color-accent-glow: rgba(94, 106, 210, 0.25);
+  --color-fg: #EDEDEF;
+  --color-muted: #8A8F98;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.14);
   --color-green: #22C55E;
   --color-amber: #F59E0B;
   --color-red: #EF4444;
   --color-destructive: #DC2626;
-  --font-heading: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-glow: 0 0 32px rgba(94, 106, 210, 0.25);
+  --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.7);
 }
 
 * {
@@ -51,19 +55,19 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
 }
 
-/* Scrollbar personalizada */
-::-webkit-scrollbar { width: 6px; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--color-primary); }
-::-webkit-scrollbar-thumb { background: var(--color-secondary); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 
-/* Leaflet overrides para dark mode */
+/* Leaflet dark mode */
 .leaflet-container {
-  background: #0d1a2e !important;
+  background: #020203 !important;
   font-family: var(--font-body) !important;
 }
 .leaflet-control-attribution {
-  background: rgba(15, 23, 42, 0.8) !important;
+  background: rgba(5, 5, 6, 0.85) !important;
   color: var(--color-muted) !important;
 }
 .leaflet-control-zoom a {
@@ -75,13 +79,13 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-secondary) !important;
 }
 
-/* Animaciones */
+/* Animations */
 @keyframes pulse-ring {
   0% { transform: scale(1); opacity: 0.8; }
   100% { transform: scale(2.5); opacity: 0; }
 }
 @keyframes slide-up {
-  from { transform: translateY(20px); opacity: 0; }
+  from { transform: translateY(24px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 @keyframes fade-in {
@@ -100,25 +104,42 @@ h1, h2, h3, h4, h5, h6 {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+@keyframes blob-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-25px, 35px) scale(0.94); }
+}
+@keyframes blob-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-35px, 25px) scale(0.96); }
+  66% { transform: translate(30px, -40px) scale(1.06); }
+}
+@keyframes blob-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(20px, 20px) scale(1.04); }
+}
 
-.animate-slide-up { animation: slide-up 0.4s ease-out; }
+.animate-slide-up { animation: slide-up 0.5s var(--easing); }
 .animate-fade-in { animation: fade-in 0.3s ease-out; }
+.blob-1 { animation: blob-1 18s ease-in-out infinite; }
+.blob-2 { animation: blob-2 22s ease-in-out infinite; }
+.blob-3 { animation: blob-3 26s ease-in-out infinite; }
 
-/* Precio badge */
-.price-cheap { background: rgba(34, 197, 94, 0.15); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.3); }
-.price-mid { background: rgba(245, 158, 11, 0.15); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
-.price-expensive { background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+/* Price badges */
+.price-cheap { background: rgba(34, 197, 94, 0.12); color: #22C55E; border: 1px solid rgba(34, 197, 94, 0.25); }
+.price-mid { background: rgba(245, 158, 11, 0.12); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.25); }
+.price-expensive { background: rgba(239, 68, 68, 0.12); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.25); }
 
-/* Glass card */
+/* Glass card — cinematic dark */
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
 }
 
-/* Marker personalizado */
+/* Map markers */
 .gas-marker-icon {
   display: flex;
   align-items: center;
@@ -130,14 +151,10 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 10px;
   font-weight: 700;
   font-family: var(--font-body);
-  border: 2px solid rgba(255,255,255,0.3);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,255,255,0.25);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
-.gas-marker-icon span {
-  transform: rotate(45deg);
-  white-space: nowrap;
-  font-size: 9px;
-}
+.gas-marker-icon span { transform: rotate(45deg); white-space: nowrap; font-size: 9px; }
 .marker-cheap { background: #22C55E; }
 .marker-mid { background: #F59E0B; }
 .marker-expensive { background: #EF4444; }

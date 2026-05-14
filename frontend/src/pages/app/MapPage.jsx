@@ -35,7 +35,7 @@ function createMarkerIcon(precio, priceClass) {
   return L.divIcon({
     className: '',
     html: `<div class="gas-marker-icon ${priceClass}" style="background:${color};width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.5);border:2px solid rgba(255,255,255,0.4);">
-      <span style="color:white;font-weight:700;font-size:10px;font-family:'DM Sans',sans-serif;">${label}</span>
+      <span style="color:white;font-weight:700;font-size:10px;font-family:'Manrope',sans-serif;">${label}</span>
     </div>`,
     iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -22],
   })
@@ -45,8 +45,8 @@ function UserMarker({ position }) {
   const icon = L.divIcon({
     className: '',
     html: `<div style="position:relative;width:20px;height:20px;">
-      <div style="position:absolute;inset:0;background:rgba(59,130,246,0.3);border-radius:50%;animation:pulse-ring 1.5s ease-out infinite;"></div>
-      <div style="position:absolute;inset:3px;background:#3B82F6;border:2px solid white;border-radius:50%;box-shadow:0 0 8px rgba(59,130,246,0.6);"></div>
+      <div style="position:absolute;inset:0;background:rgba(94,106,210,0.3);border-radius:50%;animation:pulse-ring 1.5s ease-out infinite;"></div>
+      <div style="position:absolute;inset:3px;background:#5E6AD2;border:2px solid white;border-radius:50%;box-shadow:0 0 10px rgba(94,106,210,0.7);"></div>
     </div>`,
     iconSize: [20, 20], iconAnchor: [10, 10],
   })
@@ -63,7 +63,7 @@ function RecenterMap({ position }) {
 
 const COMBUSTIBLES = [
   { key: 'magna', label: 'Magna', color: '#22C55E' },
-  { key: 'premium', label: 'Premium', color: '#3B82F6' },
+  { key: 'premium', label: 'Premium', color: '#5E6AD2' },
   { key: 'diesel', label: 'Diésel', color: '#F59E0B' },
 ]
 
@@ -101,12 +101,12 @@ export default function MapPage() {
   if (geoLoading) {
     return (
       <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: 'var(--color-bg)' }}>
-        <div style={{ width: 56, height: 56, background: 'rgba(59,130,246,0.1)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <MapPin size={28} color="#3B82F6" />
+        <div style={{ width: 56, height: 56, background: 'rgba(94,106,210,0.1)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <MapPin size={28} color="#5E6AD2" />
         </div>
         <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 22, fontWeight: 700 }}>Obteniendo ubicación...</h2>
         <p style={{ color: 'var(--color-muted)', fontSize: 14 }}>Permite el acceso a tu ubicación para ver las gasolineras más cercanas</p>
-        <Loader2 size={24} color="#3B82F6" style={{ animation: 'spin 1s linear infinite' }} />
+        <Loader2 size={24} color="#5E6AD2" style={{ animation: 'spin 1s linear infinite' }} />
       </div>
     )
   }
@@ -119,12 +119,12 @@ export default function MapPage() {
       )}
 
       {/* Topbar */}
-      <div style={{ padding: '0 16px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--color-border)', zIndex: 20, flexShrink: 0 }}>
+      <div style={{ padding: '0 16px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,5,6,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)', zIndex: 20, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #3B82F6, #1d4ed8)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #5E6AD2, #4F5BC0)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Fuel size={15} color="white" />
           </div>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17 }}>GasoNL</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17 }}>GasMap</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Selector de combustible */}
@@ -175,11 +175,11 @@ export default function MapPage() {
                         <p style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 10 }}>{est.calle || est.municipio}</p>
                         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                           {est.precios.magna && <span style={{ fontSize: 13, fontWeight: 700, color: '#22C55E' }}>Mg ${est.precios.magna.toFixed(2)}</span>}
-                          {est.precios.premium && <span style={{ fontSize: 13, fontWeight: 700, color: '#3B82F6' }}>Pm ${est.precios.premium.toFixed(2)}</span>}
+                          {est.precios.premium && <span style={{ fontSize: 13, fontWeight: 700, color: '#818CF8' }}>Pm ${est.precios.premium.toFixed(2)}</span>}
                           {est.precios.diesel && <span style={{ fontSize: 13, fontWeight: 700, color: '#F59E0B' }}>Ds ${est.precios.diesel.toFixed(2)}</span>}
                         </div>
                         <button onClick={() => handleNavigate({ ...est, distancia_km: est.distancia_km })}
-                          style={{ width: '100%', background: '#3B82F6', color: 'white', border: 'none', borderRadius: 7, padding: '8px', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'var(--font-body)' }}>
+                          style={{ width: '100%', background: '#5E6AD2', color: 'white', border: 'none', borderRadius: 7, padding: '8px', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontFamily: 'var(--font-body)' }}>
                           <Navigation size={13} /> Navegar aquí
                         </button>
                       </div>
@@ -193,9 +193,9 @@ export default function MapPage() {
       </div>
 
       {/* Bottom sheet mobile — Lista de estaciones */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, background: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(16px)', borderTop: '1px solid var(--color-border)', maxHeight: listOpen ? '70dvh' : 'auto', transition: 'max-height 0.3s ease', display: 'flex', flexDirection: 'column' }}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, background: 'rgba(5,5,6,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)', maxHeight: listOpen ? '70dvh' : 'auto', transition: 'max-height 0.3s ease', display: 'flex', flexDirection: 'column' }}
         className="mobile-sheet">
-        <button onClick={() => setListOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-fg)', width: '100%', borderBottom: listOpen ? '1px solid var(--color-border)' : 'none' }}>
+        <button onClick={() => setListOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-fg)', width: '100%', borderBottom: listOpen ? '1px solid var(--color-border)' : 'none', fontFamily: 'var(--font-body)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <TrendingDown size={16} color="#22C55E" />
             <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>
@@ -254,7 +254,7 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
         const badgeColors = { 'marker-cheap': { bg: 'rgba(34,197,94,0.12)', text: '#22C55E' }, 'marker-mid': { bg: 'rgba(245,158,11,0.12)', text: '#F59E0B' }, 'marker-expensive': { bg: 'rgba(239,68,68,0.12)', text: '#EF4444' } }
         const badge = badgeColors[priceClass]
         return (
-          <div key={est._id} onClick={() => onSelect(est._id)} style={{ background: selected === est._id ? 'rgba(59,130,246,0.08)' : 'var(--color-primary)', border: `1px solid ${selected === est._id ? 'rgba(59,130,246,0.3)' : 'var(--color-border)'}`, borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer', transition: 'all 0.2s' }}
+          <div key={est._id} onClick={() => onSelect(est._id)} style={{ background: selected === est._id ? 'rgba(94,106,210,0.08)' : 'var(--color-primary)', border: `1px solid ${selected === est._id ? 'rgba(94,106,210,0.3)' : 'var(--color-border)'}`, borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer', transition: 'all 0.2s' }}
             onMouseEnter={e => { if (selected !== est._id) e.currentTarget.style.background = 'rgba(30,41,59,0.8)' }}
             onMouseLeave={e => { if (selected !== est._id) e.currentTarget.style.background = 'var(--color-primary)' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
@@ -274,13 +274,13 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
             <div style={{ display: 'flex', gap: 6, marginTop: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', gap: 6 }}>
                 {est.precios.magna && <span style={{ background: 'rgba(34,197,94,0.1)', color: '#22C55E', fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 600 }}>Mg ${est.precios.magna.toFixed(2)}</span>}
-                {est.precios.premium && <span style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 600 }}>Pm ${est.precios.premium.toFixed(2)}</span>}
+                {est.precios.premium && <span style={{ background: 'rgba(94,106,210,0.1)', color: '#818CF8', fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 600 }}>Pm ${est.precios.premium.toFixed(2)}</span>}
                 {est.precios.diesel && <span style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', fontSize: 11, padding: '2px 7px', borderRadius: 6, fontWeight: 600 }}>Ds ${est.precios.diesel.toFixed(2)}</span>}
               </div>
               <button onClick={e => { e.stopPropagation(); onNavigate(est) }}
-                style={{ background: '#3B82F6', color: 'white', border: 'none', borderRadius: 7, padding: '5px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-body)', transition: 'background 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#2563EB'}
-                onMouseLeave={e => e.currentTarget.style.background = '#3B82F6'}>
+                style={{ background: '#5E6AD2', color: 'white', border: 'none', borderRadius: 7, padding: '5px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--font-body)', transition: 'background 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#4F5BC0'}
+                onMouseLeave={e => e.currentTarget.style.background = '#5E6AD2'}>
                 <Navigation size={11} /> Ir
               </button>
             </div>

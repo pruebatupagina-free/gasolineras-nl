@@ -6,7 +6,7 @@ const client = axios.create({
 })
 
 client.interceptors.request.use(config => {
-  const token = localStorage.getItem('gasonl_token')
+  const token = localStorage.getItem('gasmap_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -15,8 +15,8 @@ client.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('gasonl_token')
-      localStorage.removeItem('gasonl_user')
+      localStorage.removeItem('gasmap_token')
+      localStorage.removeItem('gasmap_user')
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/gasolineras-nl/login'
       }

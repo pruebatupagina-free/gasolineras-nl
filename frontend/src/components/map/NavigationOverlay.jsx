@@ -6,7 +6,7 @@ import { X, Navigation, ExternalLink, Loader2, Fuel, MapPin } from 'lucide-react
 function userIcon() {
   return L.divIcon({
     className: '',
-    html: `<div style="width:18px;height:18px;background:#3B82F6;border:3px solid white;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.3),0 0 12px rgba(59,130,246,0.5);"></div>`,
+    html: `<div style="width:18px;height:18px;background:#5E6AD2;border:3px solid white;border-radius:50%;box-shadow:0 0 0 4px rgba(94,106,210,0.3),0 0 12px rgba(94,106,210,0.5);"></div>`,
     iconSize: [18, 18], iconAnchor: [9, 9],
   })
 }
@@ -116,7 +116,7 @@ export default function NavigationOverlay({ station, userPosition, onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', flexDirection: 'column', background: 'var(--color-bg)' }} className="animate-fade-in">
       {/* Header */}
-      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15,23,42,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--color-border)', zIndex: 10 }}>
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,5,6,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid var(--color-border)', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 40, height: 40, background: 'rgba(34,197,94,0.15)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Navigation size={20} color="#22C55E" />
@@ -139,7 +139,7 @@ export default function NavigationOverlay({ station, userPosition, onClose }) {
           <Marker position={[userPosition.lat, userPosition.lng]} icon={userIcon()} />
           <Marker position={[stationLat, stationLng]} icon={stationIcon(station.nombre)} />
           {route.length > 0 && (
-            <Polyline positions={route} pathOptions={{ color: '#3B82F6', weight: 4, opacity: 0.8, dashArray: '10 8' }} />
+            <Polyline positions={route} pathOptions={{ color: '#5E6AD2', weight: 4, opacity: 0.85, dashArray: '10 8' }} />
           )}
           {phase === 'animating' && route.length > 0 && (
             <AnimatedCar route={route} onDone={() => { setAnimDone(true); setPhase('ready') }} />
@@ -148,15 +148,15 @@ export default function NavigationOverlay({ station, userPosition, onClose }) {
 
         {/* Loading overlay */}
         {loading && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, zIndex: 5 }}>
-            <Loader2 size={32} color="#3B82F6" style={{ animation: 'spin 1s linear infinite' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(5,5,6,0.7)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, zIndex: 5 }}>
+            <Loader2 size={32} color="#5E6AD2" style={{ animation: 'spin 1s linear infinite' }} />
             <p style={{ color: 'var(--color-muted)', fontWeight: 500 }}>Calculando ruta...</p>
           </div>
         )}
       </div>
 
       {/* Bottom panel */}
-      <div style={{ background: 'rgba(15,23,42,0.97)', backdropFilter: 'blur(16px)', borderTop: '1px solid var(--color-border)', padding: '20px 24px' }}>
+      <div style={{ background: 'rgba(5,5,6,0.97)', backdropFilter: 'blur(16px)', borderTop: '1px solid var(--color-border)', padding: '20px 24px' }}>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -182,13 +182,13 @@ export default function NavigationOverlay({ station, userPosition, onClose }) {
           </div>
         )}
         {phase === 'animating' && (
-          <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 10, padding: '13px', textAlign: 'center', color: '#93C5FD', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <div style={{ background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 10, padding: '13px', textAlign: 'center', color: '#A5B4FC', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             🚗 Navegando hacia la gasolinera...
           </div>
         )}
         {phase === 'ready' && (
           <button onClick={openGoogleMaps} style={{ width: '100%', background: 'var(--color-accent)', color: 'white', border: 'none', borderRadius: 10, padding: '14px', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, fontFamily: 'var(--font-body)', transition: 'background 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#2563EB'}
+            onMouseEnter={e => e.currentTarget.style.background = '#4F5BC0'}
             onMouseLeave={e => e.currentTarget.style.background = 'var(--color-accent)'}>
             <ExternalLink size={18} /> Abrir en Google Maps
           </button>
