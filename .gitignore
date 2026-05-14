@@ -4,3 +4,13 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+
+# Playwright screenshots y tokens
+scripts/*.png
+scripts/test-screenshots/
+scripts/.mongodb-uri
+scripts/.railway-token
+scripts/.railway-url
+
+# Claude config local
+.claude/

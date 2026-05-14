@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "setup:mongodb": "node scripts/setup-mongodb.js",
+    "setup:railway": "node scripts/setup-railway.js",
+    "deploy:frontend": "node scripts/deploy-frontend.js",
+    "deploy:all": "node scripts/run-all.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}
