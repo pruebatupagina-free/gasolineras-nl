@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { useQuery } from '@tanstack/react-query'
@@ -17,6 +17,29 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 })
+
+function useNextSyncCountdown() {
+  const [label, setLabel] = useState('')
+  useEffect(() => {
+    function calc() {
+      const now = new Date()
+      // Monterrey = UTC-6 permanente (México eliminó horario de verano en 2023)
+      const mtyMs = now.getTime() - now.getTimezoneOffset() * 60000 - 6 * 3600000
+      const mty = new Date(mtyMs)
+      const next = new Date(mty)
+      next.setHours(18, 30, 0, 0)
+      if (mty >= next) next.setDate(next.getDate() + 1)
+      const diff = next - mty
+      const h = Math.floor(diff / 3600000)
+      const m = Math.floor((diff % 3600000) / 60000)
+      setLabel(`${h}h ${m}m`)
+    }
+    calc()
+    const t = setInterval(calc, 60000)
+    return () => clearInterval(t)
+  }, [])
+  return label
+}
 
 function getPriceClass(precio, min, max) {
   if (!precio) return 'marker-mid'
@@ -71,6 +94,7 @@ export default function MapPage() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { position, loading: geoLoading } = useGeolocation()
+  const nextSync = useNextSyncCountdown()
   const [combustible, setCombustible] = useState('magna')
   const [selectedStation, setSelectedStation] = useState(null)
   const [navigating, setNavigating] = useState(null)
@@ -124,7 +148,14 @@ export default function MapPage() {
           <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #5E6AD2, #4F5BC0)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Fuel size={15} color="white" />
           </div>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17 }}>GasMap</span>
+          <div>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 17 }}>GasMap</span>
+            {nextSync && (
+              <div style={{ fontSize: 10, color: 'var(--color-muted)', lineHeight: 1, marginTop: 1 }}>
+                act. en {nextSync}
+              </div>
+            )}
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Selector de combustible */}
@@ -150,7 +181,7 @@ export default function MapPage() {
         {/* Panel lateral izquierdo — desktop */}
         <div style={{ width: 340, flexShrink: 0, display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border)', background: 'var(--color-bg)', overflowY: 'auto', '@media (max-width: 768px)': { display: 'none' } }}
           className="desktop-panel">
-          <StationList estaciones={estaciones} loading={isLoading} combustible={combustible} minPrice={minPrice} maxPrice={maxPrice} onNavigate={handleNavigate} selected={selectedStation} onSelect={setSelectedStation} />
+          <StationList estaciones={estaciones} loading={isLoading} combustible={combustible} minPrice={minPrice} maxPrice={maxPrice} onNavigate={handleNavigate} selected={selectedStation} onSelect={setSelectedStation} nextSync={nextSync} />
         </div>
 
         {/* Mapa */}
@@ -215,7 +246,7 @@ export default function MapPage() {
         </button>
         {listOpen && (
           <div style={{ overflowY: 'auto', flex: 1 }}>
-            <StationList estaciones={estaciones} loading={isLoading} combustible={combustible} minPrice={minPrice} maxPrice={maxPrice} onNavigate={handleNavigate} selected={selectedStation} onSelect={setSelectedStation} />
+            <StationList estaciones={estaciones} loading={isLoading} combustible={combustible} minPrice={minPrice} maxPrice={maxPrice} onNavigate={handleNavigate} selected={selectedStation} onSelect={setSelectedStation} nextSync={nextSync} />
           </div>
         )}
       </div>
@@ -233,12 +264,12 @@ export default function MapPage() {
   )
 }
 
-function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onNavigate, selected, onSelect }) {
+function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onNavigate, selected, onSelect, nextSync }) {
   if (loading) {
     return (
       <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
         {[1,2,3,4].map(i => (
-          <div key={i} style={{ background: 'var(--color-primary)', borderRadius: 12, padding: 16, animation: 'pulse 1.5s ease-in-out infinite', height: 80 }} />
+          <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, animation: 'pulse 1.5s ease-in-out infinite', height: 80 }} />
         ))}
       </div>
     )
@@ -252,11 +283,24 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
     )
   }
   return (
-    <div style={{ padding: '12px 12px 16px' }}>
+    <div style={{ padding: '8px 12px 16px' }}>
+      {/* Header del panel con contador */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 2px 12px' }}>
+        <span style={{ fontSize: 12, color: 'var(--color-muted)', fontWeight: 600 }}>
+          {estaciones.length} gasolineras · ordenadas por precio
+        </span>
+        {nextSync && (
+          <span style={{ fontSize: 11, color: 'var(--color-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+            act. en {nextSync}
+          </span>
+        )}
+      </div>
       {estaciones.map((est, idx) => {
         const priceClass = getPriceClass(est.precio_seleccionado, minPrice, maxPrice)
         const badgeColors = { 'marker-cheap': { bg: 'rgba(34,197,94,0.12)', text: '#22C55E' }, 'marker-mid': { bg: 'rgba(245,158,11,0.12)', text: '#F59E0B' }, 'marker-expensive': { bg: 'rgba(239,68,68,0.12)', text: '#EF4444' } }
         const badge = badgeColors[priceClass]
+        const direccion = [est.calle, est.colonia].filter(Boolean).join(', ')
         return (
           <div key={est._id} onClick={() => onSelect(est._id)} style={{ background: selected === est._id ? 'rgba(94,106,210,0.12)' : 'rgba(255,255,255,0.05)', border: `1px solid ${selected === est._id ? 'rgba(94,106,210,0.4)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer', transition: 'all 0.2s' }}
             onMouseEnter={e => { if (selected !== est._id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
@@ -267,8 +311,11 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
                   <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 14, color: 'white' }}>#{idx + 1}</span>
                   {idx === 0 && <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 8 }}>MÁS BARATA</span>}
                 </div>
-                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 13, margin: '0 0 4px', color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{est.nombre}</p>
-                <p style={{ fontSize: 12, color: 'var(--color-muted)', margin: 0 }}>{est.municipio} · {est.distancia_km} km</p>
+                <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 13, margin: '0 0 3px', color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{est.nombre}</p>
+                {direccion ? (
+                  <p style={{ fontSize: 11, color: 'var(--color-muted)', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{direccion}</p>
+                ) : null}
+                <p style={{ fontSize: 11, color: 'var(--color-muted)', margin: 0 }}>{est.municipio} · {est.distancia_km} km</p>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 20, color: badge.text }}>${est.precio_seleccionado?.toFixed(2)}</div>
