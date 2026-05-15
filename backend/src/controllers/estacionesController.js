@@ -18,7 +18,7 @@ exports.nearby = async (req, res, next) => {
         },
       },
       activa: true,
-      [`precios.${combustible}`]: { $ne: null, $gt: 0 },
+      [`precios.${combustible}`]: { $ne: null, $gte: 15 },
     }).limit(50)
 
     // Enriquecer con distancia y ordenar por precio
@@ -44,7 +44,7 @@ exports.nearby = async (req, res, next) => {
 exports.list = async (req, res, next) => {
   try {
     const { municipio, combustible = 'magna' } = req.query
-    const filter = { activa: true, [`precios.${combustible}`]: { $ne: null, $gt: 0 } }
+    const filter = { activa: true, [`precios.${combustible}`]: { $ne: null, $gte: 15 } }
     if (municipio) filter.municipio = municipio.toUpperCase()
 
     const estaciones = await Estacion.find(filter).sort({ [`precios.${combustible}`]: 1 }).limit(100)
@@ -70,15 +70,15 @@ exports.stats = async (req, res, next) => {
   try {
     const [magna, premium, diesel] = await Promise.all([
       Estacion.aggregate([
-        { $match: { activa: true, 'precios.magna': { $ne: null, $gt: 0 } } },
+        { $match: { activa: true, 'precios.magna': { $ne: null, $gte: 15 } } },
         { $group: { _id: null, min: { $min: '$precios.magna' }, max: { $max: '$precios.magna' }, avg: { $avg: '$precios.magna' } } },
       ]),
       Estacion.aggregate([
-        { $match: { activa: true, 'precios.premium': { $ne: null, $gt: 0 } } },
+        { $match: { activa: true, 'precios.premium': { $ne: null, $gte: 15 } } },
         { $group: { _id: null, min: { $min: '$precios.premium' }, max: { $max: '$precios.premium' }, avg: { $avg: '$precios.premium' } } },
       ]),
       Estacion.aggregate([
-        { $match: { activa: true, 'precios.diesel': { $ne: null, $gt: 0 } } },
+        { $match: { activa: true, 'precios.diesel': { $ne: null, $gte: 15 } } },
         { $group: { _id: null, min: { $min: '$precios.diesel' }, max: { $max: '$precios.diesel' }, avg: { $avg: '$precios.diesel' } } },
       ]),
     ])
