@@ -69,7 +69,7 @@ export default function LandingPage() {
         {/* Stats */}
         <div style={{ display: 'flex', gap: 0, marginTop: 72, flexWrap: 'wrap', justifyContent: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 40 }}>
           {[
-            { value: '46+', label: 'Gasolineras en piloto' },
+            { value: '1,200+', label: 'Gasolineras en NL' },
             { value: 'Diario', label: 'Actualización CRE' },
             { value: '$0', label: 'Siempre gratis' },
           ].map((s, i) => (
