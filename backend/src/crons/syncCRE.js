@@ -11,29 +11,17 @@ async function sincronizarPrecios() {
       return
     }
 
-    let actualizadas = 0
-    let nuevas = 0
+    // Limpiar colección y reemplazar con datos frescos
+    await Estacion.deleteMany({})
 
-    for (const est of estaciones) {
-      if (!est.location.coordinates[0] || !est.location.coordinates[1]) continue
-
-      const result = await Estacion.findOneAndUpdate(
-        { cre_id: est.cre_id },
-        { $set: est },
-        { upsert: true, new: true }
-      )
-      if (result.createdAt?.getTime() === result.updatedAt?.getTime()) nuevas++
-      else actualizadas++
-    }
-
-    console.log(`[Sync CRE] ✅ ${nuevas} nuevas, ${actualizadas} actualizadas`)
+    const docs = await Estacion.insertMany(estaciones, { ordered: false })
+    console.log(`[Sync CRE] ✅ ${docs.length} estaciones actualizadas desde CRE Azure`)
   } catch (err) {
     console.error('[Sync CRE] Error:', err.message)
   }
 }
 
 module.exports = function initCrons() {
-  // Ejecutar diariamente a las 18:30 (después de que CRE actualiza a las 18:00)
   cron.schedule('30 18 * * *', sincronizarPrecios, { timezone: 'America/Monterrey' })
   console.log('[Sync CRE] Cron programado: diario 18:30 Monterrey')
   return sincronizarPrecios

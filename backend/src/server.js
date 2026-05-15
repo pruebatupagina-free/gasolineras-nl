@@ -44,11 +44,14 @@ const PORT = process.env.PORT || 5000
 
 mongoose
   .connect(process.env.MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log('✅ MongoDB conectado')
     app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`))
     const initCrons = require('./crons/syncCRE')
-    initCrons()
+    const sincronizarPrecios = initCrons()
+
+    // Sincronizar al arrancar para garantizar datos frescos desde CRE
+    sincronizarPrecios().catch(err => console.error('[Startup Sync]', err.message))
   })
   .catch(err => {
     console.error('❌ Error conectando MongoDB:', err.message)
