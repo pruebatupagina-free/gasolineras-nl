@@ -158,7 +158,7 @@ async function runTests() {
     else ko('Mapa Leaflet no cargó')
 
     // Topbar
-    const topbarLogo = await page.locator('span:has-text("GasoNL")').last().isVisible({ timeout: 5000 }).catch(() => false)
+    const topbarLogo = await page.locator('span:has-text("GasMap")').last().isVisible({ timeout: 5000 }).catch(() => false)
     if (topbarLogo) ok('Topbar con logo visible en /app')
     else ko('Logo en topbar no visible')
 
