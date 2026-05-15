@@ -75,9 +75,10 @@ function MapPageInner() {
   const { data: estaciones = [], isLoading } = useQuery({
     queryKey: ['estaciones', combustible, userLocation?.lat, userLocation?.lng],
     queryFn: () => {
+      const endpoint = userLocation ? '/estaciones/nearby' : '/estaciones'
       const params = { combustible }
-      if (userLocation) { params.lat = userLocation.lat; params.lng = userLocation.lng }
-      return client.get('/estaciones', { params }).then(r => {
+      if (userLocation) { params.lat = userLocation.lat; params.lng = userLocation.lng; params.radio = 15 }
+      return client.get(endpoint, { params }).then(r => {
         const list = r.data.estaciones || r.data || []
         return list.map(s => ({
           ...s,
