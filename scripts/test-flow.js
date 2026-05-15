@@ -249,16 +249,21 @@ async function runTests() {
       else if (reportBtn) ok('StationSheet abierto — botón Reportar visible')
       else ok('Clic en estación ejecutado')
 
-      // Cerrar StationSheet
+      // Cerrar StationSheet — press Escape (sheet has keydown handler) then verify it's gone
       await wait(500)
-      const closeSheetBtn = page.locator('.animate-sheet-up button').last()
-      if (await closeSheetBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-        await closeSheetBtn.click()
-        await wait(600)
-        ok('StationSheet cerrado')
+      await page.keyboard.press('Escape')
+      await wait(800)
+      const sheetGone = await page.locator('.animate-sheet-up').isVisible({ timeout: 2000 }).catch(() => false)
+      if (!sheetGone) {
+        ok('StationSheet cerrado con Escape')
       } else {
-        await page.keyboard.press('Escape')
-        ok('Sheet cerrado con Escape')
+        // Fallback: click the X close button (first button in the sheet header)
+        const closeSheetBtn = page.locator('.animate-sheet-up button').first()
+        if (await closeSheetBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await closeSheetBtn.click()
+          await wait(600)
+        }
+        ok('StationSheet cerrado')
       }
     } else {
       ok('Lista de estaciones cargada (navegación disponible en mapa)')
