@@ -74,7 +74,7 @@ export default function MapPage() {
   const [combustible, setCombustible] = useState('magna')
   const [selectedStation, setSelectedStation] = useState(null)
   const [navigating, setNavigating] = useState(null)
-  const [listOpen, setListOpen] = useState(false)
+  const [listOpen, setListOpen] = useState(true)
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['estaciones', position?.lat, position?.lng, combustible],
@@ -193,21 +193,25 @@ export default function MapPage() {
       </div>
 
       {/* Bottom sheet mobile — Lista de estaciones */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, background: 'rgba(5,5,6,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)', maxHeight: listOpen ? '70dvh' : 'auto', transition: 'max-height 0.3s ease', display: 'flex', flexDirection: 'column' }}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, background: 'rgba(5,5,6,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)', height: listOpen ? '48dvh' : 'auto', transition: 'height 0.3s var(--easing)', display: 'flex', flexDirection: 'column', borderRadius: '16px 16px 0 0' }}
         className="mobile-sheet">
-        <button onClick={() => setListOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-fg)', width: '100%', borderBottom: listOpen ? '1px solid var(--color-border)' : 'none', fontFamily: 'var(--font-body)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <TrendingDown size={16} color="#22C55E" />
-            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>
-              {isLoading ? 'Buscando...' : `${estaciones.length} gasolineras cerca`}
-            </span>
-            {!isLoading && estaciones[0] && (
-              <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>
-                desde ${estaciones[0].precio_seleccionado?.toFixed(2)}
+        {/* Handle + header */}
+        <button onClick={() => setListOpen(v => !v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 16px 12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-fg)', width: '100%', borderBottom: listOpen ? '1px solid var(--color-border)' : 'none', fontFamily: 'var(--font-body)', flexShrink: 0 }}>
+          <div style={{ width: 36, height: 4, background: 'var(--color-border-strong)', borderRadius: 2, marginBottom: 10 }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <TrendingDown size={16} color="#22C55E" />
+              <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>
+                {isLoading ? 'Buscando...' : `${estaciones.length} gasolineras cerca`}
               </span>
-            )}
+              {!isLoading && estaciones[0] && (
+                <span style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>
+                  desde ${estaciones[0].precio_seleccionado?.toFixed(2)}
+                </span>
+              )}
+            </div>
+            <ChevronDown size={18} color="var(--color-muted)" style={{ transform: listOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </div>
-          <ChevronDown size={18} color="var(--color-muted)" style={{ transform: listOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
         </button>
         {listOpen && (
           <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -248,7 +252,7 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
     )
   }
   return (
-    <div style={{ padding: '12px 12px 80px' }}>
+    <div style={{ padding: '12px 12px 16px' }}>
       {estaciones.map((est, idx) => {
         const priceClass = getPriceClass(est.precio_seleccionado, minPrice, maxPrice)
         const badgeColors = { 'marker-cheap': { bg: 'rgba(34,197,94,0.12)', text: '#22C55E' }, 'marker-mid': { bg: 'rgba(245,158,11,0.12)', text: '#F59E0B' }, 'marker-expensive': { bg: 'rgba(239,68,68,0.12)', text: '#EF4444' } }
