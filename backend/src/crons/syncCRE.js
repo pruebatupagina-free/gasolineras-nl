@@ -1,6 +1,7 @@
 const cron = require('node-cron')
 const Estacion = require('../models/Estacion')
 const { fetchEstacionesCRE } = require('../utils/creApi')
+const { geocodeAllPending } = require('../utils/geocode')
 
 async function sincronizarPrecios() {
   console.log('[Sync CRE] Iniciando sincronización...')
@@ -11,11 +12,33 @@ async function sincronizarPrecios() {
       return
     }
 
-    // Limpiar colección y reemplazar con datos frescos
-    await Estacion.deleteMany({})
+    // Upsert por cre_id — preserva calle/colonia ya geocodificadas
+    const bulk = estaciones.map(e => ({
+      updateOne: {
+        filter: { cre_id: e.cre_id },
+        update: {
+          $set: {
+            nombre: e.nombre,
+            municipio: e.municipio,
+            estado: e.estado,
+            location: e.location,
+            precios: e.precios,
+            ultima_actualizacion: e.ultima_actualizacion,
+            activa: true,
+          },
+          $setOnInsert: { calle: null, colonia: null, razon_social: e.razon_social },
+        },
+        upsert: true,
+      },
+    }))
+    const result = await Estacion.bulkWrite(bulk, { ordered: false })
+    const syncedIds = estaciones.map(e => e.cre_id)
+    await Estacion.updateMany({ cre_id: { $nin: syncedIds } }, { $set: { activa: false } })
 
-    const docs = await Estacion.insertMany(estaciones, { ordered: false })
-    console.log(`[Sync CRE] ✅ ${docs.length} estaciones actualizadas desde CRE Azure`)
+    console.log(`[Sync CRE] ✅ ${result.upsertedCount} nuevas, ${result.modifiedCount} actualizadas`)
+
+    // Geocodificar pendientes en background (no bloquea)
+    geocodeAllPending().catch(err => console.error('[Geocode]', err.message))
   } catch (err) {
     console.error('[Sync CRE] Error:', err.message)
   }

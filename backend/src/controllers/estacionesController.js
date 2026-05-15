@@ -93,6 +93,19 @@ exports.stats = async (req, res, next) => {
   }
 }
 
+// GET /api/estaciones/sync-status
+exports.syncStatus = (req, res) => {
+  const now = new Date()
+  const mty = new Date(now.toLocaleString('en-US', { timeZone: 'America/Monterrey' }))
+  const next = new Date(mty)
+  next.setHours(18, 30, 0, 0)
+  if (mty >= next) next.setDate(next.getDate() + 1)
+  const diffMs = next - mty
+  const h = Math.floor(diffMs / 3600000)
+  const m = Math.floor((diffMs % 3600000) / 60000)
+  res.json({ next_sync_mty: next.toISOString(), diff_ms: diffMs, h, m })
+}
+
 function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
