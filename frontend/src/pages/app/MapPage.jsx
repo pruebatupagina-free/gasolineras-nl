@@ -193,7 +193,7 @@ export default function MapPage() {
       </div>
 
       {/* Bottom sheet mobile — Lista de estaciones */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 30, background: 'rgba(5,5,6,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)', height: listOpen ? '48dvh' : 'auto', transition: 'height 0.3s var(--easing)', display: 'flex', flexDirection: 'column', borderRadius: '16px 16px 0 0' }}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1100, background: '#111114', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '2px solid rgba(94,106,210,0.4)', boxShadow: '0 -8px 32px rgba(0,0,0,0.6)', height: listOpen ? '48dvh' : 'auto', transition: 'height 0.3s var(--easing)', display: 'flex', flexDirection: 'column', borderRadius: '16px 16px 0 0' }}
         className="mobile-sheet">
         {/* Handle + header */}
         <button onClick={() => setListOpen(v => !v)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 16px 12px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-fg)', width: '100%', borderBottom: listOpen ? '1px solid var(--color-border)' : 'none', fontFamily: 'var(--font-body)', flexShrink: 0 }}>
@@ -258,9 +258,9 @@ function StationList({ estaciones, loading, combustible, minPrice, maxPrice, onN
         const badgeColors = { 'marker-cheap': { bg: 'rgba(34,197,94,0.12)', text: '#22C55E' }, 'marker-mid': { bg: 'rgba(245,158,11,0.12)', text: '#F59E0B' }, 'marker-expensive': { bg: 'rgba(239,68,68,0.12)', text: '#EF4444' } }
         const badge = badgeColors[priceClass]
         return (
-          <div key={est._id} onClick={() => onSelect(est._id)} style={{ background: selected === est._id ? 'rgba(94,106,210,0.08)' : 'var(--color-primary)', border: `1px solid ${selected === est._id ? 'rgba(94,106,210,0.3)' : 'var(--color-border)'}`, borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={e => { if (selected !== est._id) e.currentTarget.style.background = 'rgba(30,41,59,0.8)' }}
-            onMouseLeave={e => { if (selected !== est._id) e.currentTarget.style.background = 'var(--color-primary)' }}>
+          <div key={est._id} onClick={() => onSelect(est._id)} style={{ background: selected === est._id ? 'rgba(94,106,210,0.12)' : 'rgba(255,255,255,0.05)', border: `1px solid ${selected === est._id ? 'rgba(94,106,210,0.4)' : 'rgba(255,255,255,0.1)'}`, borderRadius: 12, padding: 14, marginBottom: 8, cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={e => { if (selected !== est._id) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+            onMouseLeave={e => { if (selected !== est._id) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
