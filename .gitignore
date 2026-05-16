@@ -14,3 +14,9 @@ scripts/.railway-url
 
 # Claude config local
 .claude/
+
+# Chrome user data (Playwright)
+UsersTibsAppDataLocalGoogleChromeUser Data/
+
+# Screenshots en raíz
+verify-*.png
