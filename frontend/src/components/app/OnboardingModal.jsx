@@ -68,13 +68,13 @@ const SLIDES = [
   {
     badge: 'SIN APP STORE',
     title: 'Instala la app gratis',
-    desc: 'Agrega GasMap NL a tu pantalla de inicio para acceso instantáneo sin abrir el navegador.',
+    desc: 'Agrega GasMap a tu pantalla de inicio para acceso instantáneo sin abrir el navegador.',
     visual: () => (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
         <div style={{ width: 90, height: 90, borderRadius: 22, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 40px rgba(94,106,210,0.5)` }}>
           <span style={{ fontSize: 44 }}>⛽</span>
         </div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', fontFamily: 'var(--font-heading)' }}>GasMap NL</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', fontFamily: 'var(--font-heading)' }}>GasMap</div>
         {[
           '📲  Instala desde el ícono del navegador',
           '✅  Acceso como app nativa en tu pantalla de inicio',

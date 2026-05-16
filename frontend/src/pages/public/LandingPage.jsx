@@ -26,7 +26,7 @@ const FAQ_ITEMS = [
     a: 'Cubre los 9 municipios de la ZMM: Monterrey, San Pedro Garza García, Guadalupe, Apodaca, Escobedo, Santa Catarina, Juárez, García y San Nicolás de los Garza.'
   },
   {
-    q: '¿Cuánto puedo ahorrar al mes usando GasMap NL?',
+    q: '¿Cuánto puedo ahorrar al mes usando GasMap?',
     a: 'La diferencia entre la gasolinera más cara y la más barata en NL puede ser de hasta $4 por litro. Si cargas 40 litros a la semana, podrías ahorrar hasta $640 al mes eligiendo siempre la más barata cercana.'
   },
   {
@@ -34,11 +34,11 @@ const FAQ_ITEMS = [
     a: 'No. Puedes explorar el mapa y ver precios sin registrarte. La cuenta es opcional y te permite guardar tu garaje y registrar tu historial de cargas.'
   },
   {
-    q: '¿En qué marcas de gasolineras funciona GasMap NL?',
+    q: '¿En qué marcas de gasolineras funciona GasMap?',
     a: 'En todas: PEMEX, BP, Shell, Mobil, Oxxo Gas, G500, Hidrosina y cualquier franquicia registrada ante la CRE. Si opera en NL, aparece en el mapa.'
   },
   {
-    q: '¿Es seguro registrarse en GasMap NL?',
+    q: '¿Es seguro registrarse en GasMap?',
     a: 'Sí. Solo pedimos nombre y correo electrónico. No guardamos datos bancarios, contraseñas en texto plano ni información sensible. Tu privacidad está protegida.'
   },
 ]
@@ -87,7 +87,7 @@ export default function LandingPage() {
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: 'GasMap NL', text: 'El precio real de la gasolina en Nuevo León', url: APP_URL })
+      navigator.share({ title: 'GasMap', text: 'El precio real de la gasolina en Nuevo León', url: APP_URL })
     } else {
       navigator.clipboard?.writeText(APP_URL)
       alert('¡Link copiado al portapapeles!')
@@ -110,7 +110,7 @@ export default function LandingPage() {
           <div style={{ width: 32, height: 32, background: ACCENT, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Fuel size={16} color="white" />
           </div>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.3px' }}>GasMap NL</span>
+          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.3px' }}>GasMap</span>
         </div>
         <Link to="/register" style={{
           background: ACCENT, color: 'white', textDecoration: 'none',
@@ -166,7 +166,7 @@ export default function LandingPage() {
             <div style={{
               display: 'flex', gap: 0, marginBottom: 36,
               border: '1px solid var(--color-border)', borderRadius: 14,
-              overflow: 'hidden', width: 'fit-content'
+              overflow: 'hidden', maxWidth: '100%'
             }}>
               {[
                 { value: '1,276+', label: 'Gasolineras en NL' },
@@ -191,7 +191,7 @@ export default function LandingPage() {
                 fontWeight: 700, fontSize: 15, padding: '13px 26px', borderRadius: 12,
                 boxShadow: `0 0 28px ${ACCENT_GLOW}`
               }}>
-                <Fuel size={16} /> Abrir GasMap NL
+                <Fuel size={16} /> Abrir GasMap
               </Link>
               <button onClick={handleShare} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
@@ -215,7 +215,7 @@ export default function LandingPage() {
               </p>
               <img
                 src={QR_URL}
-                alt="QR GasMap NL"
+                alt="QR GasMap"
                 width={180} height={180}
                 style={{ borderRadius: 12, display: 'block', margin: '0 auto' }}
               />
@@ -239,7 +239,7 @@ export default function LandingPage() {
       <section style={{ padding: '80px 28px', maxWidth: 1140, margin: '0 auto' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(420px, 100%), 1fr))',
           gap: 14
         }}>
           {[
@@ -256,7 +256,7 @@ export default function LandingPage() {
             {
               icon: '📱',
               title: 'Acceso inmediato desde el navegador',
-              desc: 'Abre GasMap NL desde tu celular y úsala al instante. Sin descargar nada, sin instalaciones previas.'
+              desc: 'Abre GasMap desde tu celular y úsala al instante. Sin descargar nada, sin instalaciones previas.'
             },
             {
               icon: '🔒',
@@ -304,16 +304,16 @@ export default function LandingPage() {
               </span>
             </div>
             <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(24px, 3vw, 34px)', letterSpacing: '-0.5px', marginBottom: 20 }}>
-              ¿Qué es GasMap NL?
+              ¿Qué es GasMap?
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: 15, lineHeight: 1.85, marginBottom: 16 }}>
-              GasMap NL es una plataforma mexicana creada para ayudar a conductores y familias
+              GasMap es una plataforma mexicana creada para ayudar a conductores y familias
               a encontrar la gasolina más barata cerca de ellos. Nacimos con una misión simple:
               hacer transparente el precio de la gasolina en México y entregar información oficial,
               sin letra chica.
             </p>
             <p style={{ color: 'var(--color-muted)', fontSize: 15, lineHeight: 1.85, marginBottom: 16 }}>
-              A diferencia de otras apps, GasMap NL no solo muestra precios — te entrega el ranking
+              A diferencia de otras apps, GasMap no solo muestra precios — te entrega el ranking
               actualizado de las estaciones más baratas cerca de ti, con navegación directa estilo Waze
               para llegar a ellas sin perder tiempo.
             </p>
@@ -324,7 +324,7 @@ export default function LandingPage() {
               de Nuevo León, con más de 1,276 estaciones.
             </p>
             <p style={{ color: 'var(--color-muted)', fontSize: 14, marginTop: 20, fontStyle: 'italic' }}>
-              · GasMap NL es completamente gratis.
+              · GasMap es completamente gratis.
             </p>
           </div>
 
@@ -422,7 +422,7 @@ export default function LandingPage() {
               Todo sobre el ahorro en gasolina
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: 15, lineHeight: 1.7 }}>
-              Resolvemos las dudas más comunes sobre precios de gasolina, la CRE y cómo funciona GasMap NL.
+              Resolvemos las dudas más comunes sobre precios de gasolina, la CRE y cómo funciona GasMap.
             </p>
           </div>
 
@@ -448,7 +448,7 @@ export default function LandingPage() {
                 <div style={{ width: 26, height: 26, background: ACCENT, borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Fuel size={13} color="white" />
                 </div>
-                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>GasMap NL</span>
+                <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>GasMap</span>
               </div>
               <p style={{ color: 'var(--color-muted)', fontSize: 12 }}>
                 Plataforma de precios de gasolina — Nuevo León, México · 2026
@@ -468,7 +468,7 @@ export default function LandingPage() {
             </div>
           </div>
           <p style={{ color: 'var(--color-muted)', fontSize: 11, lineHeight: 1.6 }}>
-            Los precios son referenciales según datos de la CRE. GasMap NL no es responsable de variaciones en estaciones individuales.
+            Los precios son referenciales según datos de la CRE. GasMap no es responsable de variaciones en estaciones individuales.
           </p>
         </div>
       </footer>

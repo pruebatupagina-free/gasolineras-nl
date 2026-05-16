@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useGeolocation } from '../../hooks/useGeolocation'
 
 import BottomNav from '../../components/app/BottomNav'
+import StationSheet from '../../components/app/StationSheet'
 import HomeTab from '../../components/app/HomeTab'
 import EstacionesTab from '../../components/app/EstacionesTab'
 import MapTab from '../../components/app/MapTab'
@@ -117,7 +118,7 @@ function MapPageInner() {
         combustible={combustible}
         onCombustibleChange={setCombustible}
         userLocation={userLocation}
-        onSelectStation={s => { setSelectedStation(s); setActiveTab('mapa') }}
+        onSelectStation={s => setSelectedStation(s)}
       />
     ),
     mapa: (
@@ -149,7 +150,7 @@ function MapPageInner() {
                 <span style={{ fontSize: 16 }}>⛽</span>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'var(--font-heading)', lineHeight: 1 }}>GasMap NL</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'white', fontFamily: 'var(--font-heading)', lineHeight: 1 }}>GasMap</div>
                 {syncCountdown && <div style={{ fontSize: 10, color: 'var(--color-muted)' }}>Actualiza en {syncCountdown}</div>}
               </div>
             </div>
@@ -217,6 +218,16 @@ function MapPageInner() {
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         {tabContent[activeTab]}
       </div>
+
+      {/* Station detail overlay for non-map tabs */}
+      {selectedStation && activeTab !== 'mapa' && (
+        <StationSheet
+          station={selectedStation}
+          combustible={combustible}
+          userLocation={userLocation}
+          onClose={() => setSelectedStation(null)}
+        />
+      )}
 
       {/* Bottom nav */}
       <BottomNav active={activeTab} onChange={tab => { setActiveTab(tab); if (tab !== 'mapa') setSelectedStation(null) }} />

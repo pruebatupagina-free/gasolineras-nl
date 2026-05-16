@@ -32,7 +32,7 @@ export default function PerfilTab() {
       group: 'Aplicación',
       items: [
         { icon: Zap, label: 'Actualización de datos', sub: 'CRE · 18:30 MTY diario', color: '#818CF8' },
-        { icon: Info, label: 'Versión', sub: `GasMap NL v${APP_VERSION}`, color: 'var(--color-muted)' },
+        { icon: Info, label: 'Versión', sub: `GasMap v${APP_VERSION}`, color: 'var(--color-muted)' },
       ],
     },
   ]
@@ -161,7 +161,7 @@ export default function PerfilTab() {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', paddingBottom: 8 }}>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>GasMap NL v{APP_VERSION}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>GasMap v{APP_VERSION}</div>
           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.08)', marginTop: 3 }}>Datos oficiales de la CRE · Nuevo León, México</div>
         </div>
       </div>
