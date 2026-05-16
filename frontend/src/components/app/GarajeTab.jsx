@@ -112,7 +112,7 @@ function AddVehicleSheet({ onClose, onCreated }) {
 
 function SpendingChart({ data }) {
   if (!data?.length) return null
-  const max = Math.max(...data.map(d => d.total || 0), 1)
+  const max = Math.max(...data.map(d => d.total_mxn || 0), 1)
 
   return (
     <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '16px', marginBottom: 16 }}>
@@ -122,7 +122,7 @@ function SpendingChart({ data }) {
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 60 }}>
         {data.slice(-6).map((d, i) => {
-          const h = ((d.total || 0) / max) * 100
+          const h = ((d.total_mxn || 0) / max) * 100
           return (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <div style={{
@@ -134,7 +134,7 @@ function SpendingChart({ data }) {
               }}>
                 {h > 30 && (
                   <span style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', fontSize: 9, color: 'var(--color-muted)', whiteSpace: 'nowrap' }}>
-                    ${Math.round(d.total || 0)}
+                    ${Math.round(d.total_mxn || 0)}
                   </span>
                 )}
               </div>
@@ -203,8 +203,8 @@ export default function GarajeTab() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
             {[
-              { label: 'Este mes', value: `$${(stats.mes || 0).toFixed(0)}`, color: '#5E6AD2', icon: Calendar },
-              { label: 'Total cargas', value: `$${(stats.total || 0).toFixed(0)}`, color: '#22C55E', icon: Fuel },
+              { label: 'Este mes', value: `$${(stats.mes?.total_mxn || 0).toFixed(0)}`, color: '#5E6AD2', icon: Calendar },
+              { label: 'Total cargas', value: `$${(stats.total?.total_mxn || 0).toFixed(0)}`, color: '#22C55E', icon: Fuel },
             ].map(({ label, value, color, icon: Icon }, i) => (
               <div key={i} className={`animate-card-enter stagger-${i + 1}`} style={{
                 background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
@@ -221,7 +221,7 @@ export default function GarajeTab() {
         )}
 
         {/* Spending chart */}
-        {stats?.porMes && <SpendingChart data={stats.porMes} />}
+        {stats?.por_mes && <SpendingChart data={stats.por_mes} />}
 
         {/* Vehicles */}
         <div style={{ marginBottom: 16 }}>
