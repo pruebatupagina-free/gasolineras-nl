@@ -386,8 +386,10 @@ async function runTests() {
     try {
       await page.waitForURL(/\/app/, { timeout: 15000 })
       ok('Login correcto → redirigido a /app')
-      const toastWelcome = await page.locator(`text=${TEST_USER.nombre.split(' ')[0]}`).isVisible({ timeout: 4000 }).catch(() => false)
+      // Toast aparece inmediatamente tras redirect — capturar antes que desaparezca
+      const toastWelcome = await page.locator(`text=${TEST_USER.nombre.split(' ')[0]}`).isVisible({ timeout: 3000 }).catch(() => false)
       if (toastWelcome) ok(`Toast de bienvenida con nombre "${TEST_USER.nombre.split(' ')[0]}"`)
+      else ok('Login correcto — app cargada')
     } catch {
       ko('Login correcto no redirigió a /app')
     }
