@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Fuel, Share2, ChevronDown, TrendingDown, BookOpen, Globe, Lock } from 'lucide-react'
 
@@ -205,6 +205,34 @@ function AppMockup({ stats }) {
   )
 }
 
+function Reveal({ children, delay = 0, from = 'bottom', style = {} }) {
+  const ref = useRef(null)
+  const [vis, setVis] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVis(true); obs.disconnect() } },
+      { threshold: 0.08 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  const tx = from === 'left'
+    ? (vis ? 'translateX(0)' : 'translateX(-32px)')
+    : from === 'right'
+    ? (vis ? 'translateX(0)' : 'translateX(32px)')
+    : (vis ? 'translateY(0)' : 'translateY(32px)')
+  return (
+    <div ref={ref} style={{
+      opacity: vis ? 1 : 0,
+      transform: tx,
+      transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+      ...style,
+    }}>{children}</div>
+  )
+}
+
 function FaqItem({ item, open, onToggle }) {
   return (
     <div
@@ -239,6 +267,9 @@ function FaqItem({ item, open, onToggle }) {
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState(null)
   const [stats, setStats] = useState(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t) }, [])
 
   useEffect(() => {
     fetch(`${API_BASE}/estaciones/stats`)
@@ -309,7 +340,11 @@ export default function LandingPage() {
         }}>
 
           {/* Left */}
-          <div>
+          <div style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(28px)',
+            transition: 'opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1)',
+          }}>
             {/* Headline */}
             <h1 style={{
               fontFamily: 'var(--font-heading)', fontWeight: 800, lineHeight: 1.05,
@@ -363,7 +398,12 @@ export default function LandingPage() {
           </div>
 
           {/* Right — App mockup */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            display: 'flex', justifyContent: 'center',
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'translateY(0)' : 'translateY(36px)',
+            transition: 'opacity 0.95s cubic-bezier(0.16,1,0.3,1) 0.18s, transform 0.95s cubic-bezier(0.16,1,0.3,1) 0.18s',
+          }}>
             <AppMockup stats={stats} />
           </div>
         </div>
@@ -405,25 +445,28 @@ export default function LandingPage() {
               title: 'Sin tarjeta de crédito',
               desc: 'Crea tu cuenta gratis en menos de 1 minuto. Solo necesitas tu nombre y correo electrónico.'
             },
-          ].map(f => (
-            <div key={f.title} style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid var(--color-border)',
-              borderRadius: 16, padding: '28px 24px',
-              display: 'flex', gap: 16, alignItems: 'flex-start'
-            }}>
+          ].map((f, i) => (
+            <Reveal key={f.title} delay={i * 110}>
               <div style={{
-                width: 44, height: 44, flexShrink: 0, borderRadius: 12,
-                background: 'rgba(94,106,210,0.1)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 16, padding: '28px 24px',
+                display: 'flex', gap: 16, alignItems: 'flex-start',
+                height: '100%',
               }}>
-                {f.icon}
+                <div style={{
+                  width: 44, height: 44, flexShrink: 0, borderRadius: 12,
+                  background: 'rgba(94,106,210,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                }}>
+                  {f.icon}
+                </div>
+                <div>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15, marginBottom: 8, color: 'var(--color-fg)' }}>{f.title}</h3>
+                  <p style={{ color: 'var(--color-muted)', fontSize: 13, lineHeight: 1.7 }}>{f.desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15, marginBottom: 8, color: 'var(--color-fg)' }}>{f.title}</h3>
-                <p style={{ color: 'var(--color-muted)', fontSize: 13, lineHeight: 1.7 }}>{f.desc}</p>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -436,6 +479,7 @@ export default function LandingPage() {
           gap: 64
         }}>
           {/* Left — About */}
+          <Reveal from="left">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <div style={{ width: 20, height: 20, background: ACCENT, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -469,8 +513,10 @@ export default function LandingPage() {
               · GasMap es completamente gratis.
             </p>
           </div>
+          </Reveal>
 
           {/* Right — Precios de hoy */}
+          <Reveal from="right" delay={150}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <div style={{ width: 20, height: 20, background: 'rgba(94,106,210,0.15)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -545,12 +591,14 @@ export default function LandingPage() {
               * Precios referenciales según datos de la CRE. Pueden variar por estación individual.
             </p>
           </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ── FAQ ── */}
       <section style={{ padding: '80px 28px' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <Reveal>
           <div style={{ textAlign: 'center', marginBottom: 52 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 14 }}>
               <div style={{ width: 20, height: 20, background: 'rgba(94,106,210,0.1)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -567,15 +615,17 @@ export default function LandingPage() {
               Resolvemos las dudas más comunes sobre precios de gasolina, la CRE y cómo funciona GasMap.
             </p>
           </div>
+          </Reveal>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {FAQ_ITEMS.map((item, i) => (
-              <FaqItem
-                key={i}
-                item={item}
-                open={openFaq === i}
-                onToggle={() => setOpenFaq(openFaq === i ? null : i)}
-              />
+              <Reveal key={i} delay={i * 60}>
+                <FaqItem
+                  item={item}
+                  open={openFaq === i}
+                  onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+                />
+              </Reveal>
             ))}
           </div>
         </div>
