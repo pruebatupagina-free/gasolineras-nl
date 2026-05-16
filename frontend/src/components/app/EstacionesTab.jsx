@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Search, MapPin, Fuel, SlidersHorizontal, GitCompare, Plus, Check, Star } from 'lucide-react'
+import { Search, MapPin, Fuel, SlidersHorizontal, GitCompare, Plus, Check, Star, Heart } from 'lucide-react'
 import ComparadorModal from './ComparadorModal'
 import client from '../../api/client'
+import { useFavoritos } from '../../hooks/useFavoritos'
 
 function truncateName(name, max = 24) {
   if (!name || name.length <= max) return name
@@ -62,7 +63,9 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   const [showComparador, setShowComparador] = useState(false)
   const [sortBy, setSortBy] = useState('precio')
   const [marcaFilter, setMarcaFilter] = useState('Todas')
+  const [showFavs, setShowFavs] = useState(false)
   const [ratingsStats, setRatingsStats] = useState({})
+  const { ids: favIds, isFav } = useFavoritos()
   const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
 
   useEffect(() => {
@@ -111,9 +114,10 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   }, [availableBrands, marcaFilter])
 
   const filtered = useMemo(() => {
-    let list = marcaFilter === 'Todas'
-      ? preFiltered
-      : preFiltered.filter(s => detectMarca(s) === marcaFilter)
+    // Favoritas mode bypasses all other filters
+    let list = showFavs
+      ? estaciones.filter(s => favIds.includes(s._id))
+      : (marcaFilter === 'Todas' ? preFiltered : preFiltered.filter(s => detectMarca(s) === marcaFilter))
 
     if (sortBy === 'rating') {
       return list.sort((a, b) => {
@@ -123,7 +127,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
       })
     }
     return list.sort((a, b) => (a.precios[combustible] || 99) - (b.precios[combustible] || 99))
-  }, [preFiltered, marcaFilter, combustible, sortBy, ratingsStats])
+  }, [preFiltered, marcaFilter, combustible, sortBy, ratingsStats, showFavs, favIds, estaciones])
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64, position: 'relative' }}>
@@ -258,18 +262,29 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
         )}
       </div>
 
-      {/* Sort toggle + count */}
-      <div style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-        <span style={{ fontSize: 11, color: '#8A8F98', fontWeight: 600 }}>
-          {filtered.length} estaciones
-          {municipio !== 'Todos' ? ` · ${municipio}` : ''}
-          {marcaFilter !== 'Todas' ? ` · ${marcaFilter}` : ''}
-          {query ? ` · "${query}"` : ''}
+      {/* Sort toggle + count + favoritas */}
+      <div style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <span style={{ fontSize: 11, color: '#8A8F98', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {showFavs ? `${filtered.length} favoritas` : `${filtered.length} estaciones${municipio !== 'Todos' ? ` · ${municipio}` : ''}${marcaFilter !== 'Todas' ? ` · ${marcaFilter}` : ''}${query ? ` · "${query}"` : ''}`}
         </span>
-        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 2, gap: 2 }}>
-          {[{ key: 'precio', label: 'Precio' }, { key: 'rating', label: '⭐ Rating' }].map(s => (
+        {favIds.length > 0 && (
+          <button onClick={() => setShowFavs(p => !p)} style={{
+            display: 'flex', alignItems: 'center', gap: 4,
+            padding: '4px 9px', borderRadius: 20, border: 'none', cursor: 'pointer',
+            background: showFavs ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)',
+            color: showFavs ? '#EF4444' : '#8A8F98',
+            outline: showFavs ? '1px solid rgba(239,68,68,0.35)' : 'none',
+            fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
+            transition: 'all 0.15s', flexShrink: 0,
+          }}>
+            <Heart size={11} fill={showFavs ? '#EF4444' : 'none'} color={showFavs ? '#EF4444' : '#8A8F98'} />
+            {favIds.length}
+          </button>
+        )}
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 2, gap: 2, flexShrink: 0 }}>
+          {[{ key: 'precio', label: 'Precio' }, { key: 'rating', label: '⭐' }].map(s => (
             <button key={s.key} onClick={() => setSortBy(s.key)} style={{
-              padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+              padding: '4px 9px', borderRadius: 6, border: 'none', cursor: 'pointer',
               background: sortBy === s.key ? 'rgba(94,106,210,0.25)' : 'transparent',
               color: sortBy === s.key ? '#A5B4FC' : '#8A8F98',
               fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
@@ -285,7 +300,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
           <div style={{ padding: 40, textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <div style={{ color: '#8A8F98', fontSize: 14 }}>No se encontraron estaciones</div>
-            <button onClick={() => { setQuery(''); setMunicipio('Todos'); setMarcaFilter('Todas') }} style={{
+            <button onClick={() => { setQuery(''); setMunicipio('Todos'); setMarcaFilter('Todas'); setShowFavs(false) }} style={{
               marginTop: 12, background: 'none', border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 8, padding: '8px 16px', color: '#8A8F98', cursor: 'pointer', fontSize: 13,
               fontFamily: 'var(--font-body)',
@@ -314,8 +329,14 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                 fontSize: 12, fontWeight: 700,
                 color: i === 0 ? '#22C55E' : '#8A8F98',
                 fontFamily: 'var(--font-heading)',
+                position: 'relative',
               }}>
                 {isCheapest ? '🏆' : `#${i + 1}`}
+                {isFav(s._id) && (
+                  <div style={{ position: 'absolute', top: -6, right: -4 }}>
+                    <Heart size={8} fill="#EF4444" color="#EF4444" />
+                  </div>
+                )}
               </div>
 
               {/* Icon */}

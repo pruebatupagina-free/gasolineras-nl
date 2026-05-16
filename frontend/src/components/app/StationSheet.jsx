@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from 'react'
-import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell, Share2, Star, DollarSign } from 'lucide-react'
+import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell, Share2, Star, DollarSign, Heart } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReportModal from './ReportModal'
 import AlertaModal from './AlertaModal'
 import RatingModal from './RatingModal'
 import PrecioReporteModal from './PrecioReporteModal'
 import client from '../../api/client'
+import { useFavoritos } from '../../hooks/useFavoritos'
 
 const COMBUST_COLORS = { magna: '#22C55E', premium: '#5E6AD2', diesel: '#F59E0B' }
 
@@ -114,6 +115,7 @@ function timeAgo(date) {
 }
 
 export default function StationSheet({ station, combustible, userLocation, onClose, onNavigate }) {
+  const { isFav, toggle: toggleFav } = useFavoritos()
   const [reportCombust, setReportCombust] = useState(null)
   const [showAlerta, setShowAlerta] = useState(false)
   const [showRating, setShowRating] = useState(false)
@@ -259,9 +261,21 @@ export default function StationSheet({ station, combustible, userLocation, onClo
                 )}
               </div>
             </div>
-            <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 8, cursor: 'pointer', color: 'var(--color-muted)', flexShrink: 0, marginLeft: 12 }}>
-              <X size={18} />
-            </button>
+            <div style={{ display: 'flex', gap: 6, flexShrink: 0, marginLeft: 12 }}>
+              <button
+                onClick={() => {
+                  toggleFav(station._id)
+                  toast.success(isFav(station._id) ? 'Eliminada de favoritas' : '❤️ Guardada en favoritas', { duration: 1800 })
+                }}
+                className="pressable"
+                style={{ background: isFav(station._id) ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: isFav(station._id) ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 8, cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                <Heart size={18} fill={isFav(station._id) ? '#EF4444' : 'none'} color={isFav(station._id) ? '#EF4444' : 'var(--color-muted)'} />
+              </button>
+              <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: 8, cursor: 'pointer', color: 'var(--color-muted)' }}>
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Price highlight */}

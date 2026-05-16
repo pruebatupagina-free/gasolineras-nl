@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { TrendingDown, TrendingUp, MapPin, Navigation, ChevronRight, Zap, Clock, Fuel, ArrowRight, Star, Bell } from 'lucide-react'
+import { TrendingDown, TrendingUp, MapPin, Navigation, ChevronRight, Zap, Clock, Fuel, ArrowRight, Star, Bell, Heart } from 'lucide-react'
 import client from '../../api/client'
+import { useFavoritos } from '../../hooks/useFavoritos'
 
 const SLIDES = [
   {
@@ -226,6 +227,18 @@ function StatCard({ label, value, unit, color, icon: Icon, delay = 0 }) {
   )
 }
 
+const MUN_LABELS = {
+  'MONTERREY': 'Monterrey',
+  'SAN PEDRO GARZA GARCIA': 'San Pedro GG',
+  'GUADALUPE': 'Guadalupe',
+  'APODACA': 'Apodaca',
+  'GENERAL ESCOBEDO': 'Escobedo',
+  'SANTA CATARINA': 'Santa Catarina',
+  'JUAREZ': 'Juárez',
+  'GARCIA': 'García',
+  'SAN NICOLAS DE LOS GARZA': 'San Nicolás',
+}
+
 function SkeletonRow() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 6, background: 'rgba(255,255,255,0.03)', borderRadius: 14 }}>
@@ -240,6 +253,7 @@ function SkeletonRow() {
 }
 
 export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, isLoading, onViewMap, onSelectStation, noLeidas = 0, onOpenNotificaciones }) {
+  const { ids: favIds } = useFavoritos()
   const { data: stats } = useQuery({
     queryKey: ['stats'],
     queryFn: () => client.get('/estaciones/stats').then(r => r.data),
@@ -262,6 +276,30 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
   const statMin = stats?.[combustible]?.min
   const statMax = stats?.[combustible]?.max
   const statAvg = stats?.[combustible]?.avg
+
+  const favStations = useMemo(() => {
+    if (!favIds.length || !estaciones?.length) return []
+    return favIds.map(id => estaciones.find(s => s._id === id)).filter(Boolean)
+  }, [favIds, estaciones])
+
+  const municipioRanking = useMemo(() => {
+    if (!estaciones?.length) return []
+    const groups = {}
+    for (const s of estaciones) {
+      const precio = s.precios?.[combustible]
+      if (!precio || precio < 15) continue
+      const mun = s.municipio || 'OTROS'
+      if (!groups[mun]) groups[mun] = []
+      groups[mun].push(precio)
+    }
+    const entries = Object.entries(groups).map(([municipio, prices]) => ({
+      municipio,
+      label: MUN_LABELS[municipio] || municipio,
+      avg: prices.reduce((a, b) => a + b, 0) / prices.length,
+      count: prices.length,
+    })).sort((a, b) => a.avg - b.avg)
+    return entries
+  }, [estaciones, combustible])
 
   return (
     <div style={{ overflowY: 'auto', height: '100%', paddingBottom: 80 }}>
@@ -380,6 +418,89 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
             })}
           </div>
         </div>
+
+        {/* Mis Favoritas */}
+        {favStations.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <Heart size={12} fill="#EF4444" color="#EF4444" />
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                Mis Favoritas
+              </span>
+            </div>
+            {favStations.map(s => {
+              const precio = s.precios?.[combustible]
+              const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
+              const dist = userLocation ? distanceKm(userLocation.lat, userLocation.lng, s.lat, s.lng) : null
+              return (
+                <div
+                  key={s._id}
+                  className="pressable"
+                  onClick={() => onSelectStation(s)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '12px 14px', marginBottom: 6,
+                    background: 'rgba(239,68,68,0.04)',
+                    border: '1px solid rgba(239,68,68,0.12)',
+                    borderRadius: 14, cursor: 'pointer',
+                  }}
+                >
+                  <Heart size={14} fill="#EF4444" color="#EF4444" style={{ flexShrink: 0 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.nombre}</div>
+                    {dist !== null && <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>{dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}</div>}
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: precio ? c.color : 'var(--color-muted)', fontFamily: 'var(--font-heading)', flexShrink: 0 }}>
+                    {precio ? `$${precio.toFixed(2)}` : '—'}
+                  </div>
+                  <ChevronRight size={13} color="rgba(255,255,255,0.2)" />
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Ranking de precios por municipio */}
+        {municipioRanking.length >= 2 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+              Precios por municipio — {combustible.charAt(0).toUpperCase() + combustible.slice(1)}
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden' }}>
+              {(() => {
+                const minAvg = municipioRanking[0].avg
+                const maxAvg = municipioRanking[municipioRanking.length - 1].avg
+                const range = maxAvg - minAvg || 1
+                const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
+                return municipioRanking.map((m, i) => {
+                  const pct = Math.max(12, Math.round(((m.avg - minAvg) / range) * 100))
+                  const isCheapest = i === 0
+                  return (
+                    <div key={m.municipio} style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 16px',
+                      borderBottom: i < municipioRanking.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                      background: isCheapest ? 'rgba(34,197,94,0.04)' : 'transparent',
+                    }}>
+                      <span style={{ fontSize: 11, color: isCheapest ? '#22C55E' : 'var(--color-muted)', fontWeight: 700, width: 16, textAlign: 'center', flexShrink: 0 }}>
+                        {isCheapest ? '🏆' : `${i + 1}`}
+                      </span>
+                      <span style={{ fontSize: 12, color: 'white', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {m.label}
+                      </span>
+                      <div style={{ width: 60, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', flexShrink: 0 }}>
+                        <div style={{ height: '100%', width: `${pct}%`, background: isCheapest ? '#22C55E' : c.color, borderRadius: 2, opacity: 0.7 }} />
+                      </div>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: isCheapest ? '#22C55E' : c.color, fontFamily: 'var(--font-heading)', flexShrink: 0, minWidth: 50, textAlign: 'right' }}>
+                        ${m.avg.toFixed(2)}
+                      </span>
+                    </div>
+                  )
+                })
+              })()}
+            </div>
+          </div>
+        )}
 
         {/* Station list preview */}
         <div style={{ marginBottom: 20 }}>
