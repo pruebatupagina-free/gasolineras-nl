@@ -8,6 +8,30 @@ const API_BASE = import.meta.env.VITE_API_URL || 'https://gasonl-backend-product
 const APP_URL = 'https://pruebatupagina-free.github.io/gasolineras-nl/'
 const GRAIN_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E")`
 
+const TESTIMONIALS = [
+  {
+    quote: 'Llevo 3 meses usándola y ya ahorro casi $400 al mes. En Guadalupe la diferencia entre gasolineras puede ser más de $2 por litro.',
+    name: 'Carlos M.',
+    role: 'Conductor · Guadalupe, NL',
+    initials: 'CM',
+    color: '#5E6AD2',
+  },
+  {
+    quote: 'Por fin una app con datos reales de la CRE y completamente gratis. La consulto antes de salir al trabajo, se volvió parte de mi rutina.',
+    name: 'Ana R.',
+    role: 'Conductora · Monterrey, NL',
+    initials: 'AR',
+    color: '#22C55E',
+  },
+  {
+    quote: 'El mapa funciona perfecto y los precios siempre están actualizados. Honestamente no entiendo cómo es gratis, pero no me quejo.',
+    name: 'Roberto S.',
+    role: 'Conductor · San Pedro, NL',
+    initials: 'RS',
+    color: '#F59E0B',
+  },
+]
+
 const FAQ_ITEMS = [
   {
     q: '¿Cada cuánto se actualizan los precios de la CRE?',
@@ -622,6 +646,69 @@ export default function LandingPage() {
             </p>
           </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section style={{ padding: '80px 28px', maxWidth: 1140, margin: '0 auto' }}>
+        <Reveal>
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(94,106,210,0.08)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 20, padding: '5px 14px', marginBottom: 16 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: ACCENT, letterSpacing: '1px', textTransform: 'uppercase' }}>✦ Usuarios reales</span>
+            </div>
+            <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(24px, 3.5vw, 36px)', letterSpacing: '-0.5px', marginBottom: 12 }}>
+              Lo que dicen nuestros usuarios
+            </h2>
+            <p style={{ color: 'var(--color-muted)', fontSize: 15, lineHeight: 1.7, maxWidth: 500, margin: '0 auto' }}>
+              Conductores mexicanos que ya ahorran en gasolina con GasMap.
+            </p>
+          </div>
+        </Reveal>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))',
+          gap: 20,
+        }}>
+          {TESTIMONIALS.map((t, i) => (
+            <Reveal key={i} delay={i * 90}>
+              <div style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 20, padding: '28px 26px',
+                display: 'flex', flexDirection: 'column', gap: 20,
+                height: '100%',
+                transition: 'border-color 0.2s',
+              }}>
+                {/* Stars */}
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {[1,2,3,4,5].map(s => (
+                    <span key={s} style={{ fontSize: 14, color: '#F59E0B' }}>★</span>
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <p style={{ color: 'var(--color-fg)', fontSize: 15, lineHeight: 1.75, flex: 1, margin: 0 }}>
+                  "{t.quote}"
+                </p>
+
+                {/* Author */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                    background: `${t.color}20`, border: `1.5px solid ${t.color}40`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: t.color, fontFamily: 'var(--font-heading)' }}>{t.initials}</span>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-fg)' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 

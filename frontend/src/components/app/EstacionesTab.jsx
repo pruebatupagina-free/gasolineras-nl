@@ -204,14 +204,15 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {truncateName(s.nombre)}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, overflow: 'hidden' }}>
                   {s.municipio && (
-                    <span style={{ fontSize: 11, color: '#8A8F98', display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <MapPin size={9} />{s.municipio}
+                    <span style={{ fontSize: 11, color: '#8A8F98', display: 'flex', alignItems: 'center', gap: 2, minWidth: 0, overflow: 'hidden' }}>
+                      <MapPin size={9} style={{ flexShrink: 0 }} />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.municipio}</span>
                     </span>
                   )}
                   {dist !== null && (
-                    <span style={{ fontSize: 11, color: '#8A8F98' }}>
+                    <span style={{ fontSize: 11, color: '#8A8F98', flexShrink: 0, whiteSpace: 'nowrap' }}>
                       · {dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`}
                     </span>
                   )}
