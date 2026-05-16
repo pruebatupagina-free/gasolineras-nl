@@ -68,23 +68,44 @@ const SLIDES = [
   {
     badge: 'SIN APP STORE',
     title: 'Instala la app gratis',
-    desc: 'Agrega GasMap a tu pantalla de inicio para acceso instantáneo sin abrir el navegador.',
-    visual: () => (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <div style={{ width: 90, height: 90, borderRadius: 22, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 40px rgba(94,106,210,0.5)` }}>
-          <span style={{ fontSize: 44 }}>⛽</span>
-        </div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', fontFamily: 'var(--font-heading)' }}>GasMap</div>
-        {[
-          '📲  Instala desde el ícono del navegador',
-          '✅  Acceso como app nativa en tu pantalla de inicio',
-        ].map((t, i) => (
-          <div key={i} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: '10px 16px', border: '1px solid rgba(255,255,255,0.1)', width: 260, fontSize: 12, color: '#EDEDEF' }}>
-            {t}
+    desc: 'Agrega GasMap a tu pantalla de inicio para acceso instantáneo, sin abrir el navegador.',
+    visual: () => {
+      const ios = /iPhone|iPad|iPod/.test(navigator.userAgent)
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, width: '100%', maxWidth: 300, margin: '0 auto' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 18, background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 8px 32px rgba(94,106,210,0.5)`, marginBottom: 4 }}>
+            <span style={{ fontSize: 36 }}>⛽</span>
           </div>
-        ))}
-      </div>
-    ),
+          {ios ? (
+            <>
+              {[
+                { icon: '⬆️', text: 'Toca el botón Compartir en Safari' },
+                { icon: '➕', text: 'Selecciona "Agregar a pantalla de inicio"' },
+                { icon: '✅', text: 'Toca "Agregar" — ¡listo!' },
+              ].map(({ icon, text }, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', width: '100%' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{icon}</span>
+                  <span style={{ fontSize: 12, color: '#EDEDEF', fontWeight: 500 }}>{text}</span>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              {[
+                { icon: '🔔', text: 'Busca el banner de instalación en Chrome' },
+                { icon: '👤', text: 'O ve a Perfil → "Instalar GasMap"' },
+                { icon: '✅', text: 'Toca "Instalar" — acceso instantáneo' },
+              ].map(({ icon, text }, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.1)', width: '100%' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>{icon}</span>
+                  <span style={{ fontSize: 12, color: '#EDEDEF', fontWeight: 500 }}>{text}</span>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      )
+    },
   },
 ]
 

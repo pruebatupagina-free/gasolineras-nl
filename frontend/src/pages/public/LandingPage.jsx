@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Fuel, Share2, ChevronDown, TrendingDown, BookOpen, Globe, Lock } from 'lucide-react'
+import { Fuel, Share2, ChevronDown, TrendingDown, BookOpen, Globe, Lock, Download, X } from 'lucide-react'
 
 const ACCENT = '#5E6AD2'
 const ACCENT_GLOW = 'rgba(94,106,210,0.28)'
@@ -289,10 +289,16 @@ function FaqItem({ item, open, onToggle }) {
   )
 }
 
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) && !('MSStream' in window)
+const isStandalone = () => window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
+
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState(null)
   const [stats, setStats] = useState(null)
   const [mounted, setMounted] = useState(false)
+  const [canInstall, setCanInstall] = useState(false)
+  const [showIOSModal, setShowIOSModal] = useState(false)
+  const deferredPrompt = useRef(null)
 
   useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t) }, [])
 
@@ -303,6 +309,30 @@ export default function LandingPage() {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const handler = e => {
+      e.preventDefault()
+      deferredPrompt.current = e
+      setCanInstall(true)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener('appinstalled', () => setCanInstall(false))
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  async function handleInstall() {
+    if (deferredPrompt.current) {
+      deferredPrompt.current.prompt()
+      const { outcome } = await deferredPrompt.current.userChoice
+      if (outcome === 'accepted') {
+        setCanInstall(false)
+        deferredPrompt.current = null
+      }
+    } else if (isIOS() && !isStandalone()) {
+      setShowIOSModal(true)
+    }
+  }
+
   function handleShare() {
     if (navigator.share) {
       navigator.share({ title: 'GasMap', text: 'El precio real de la gasolina en México', url: APP_URL })
@@ -311,6 +341,8 @@ export default function LandingPage() {
       alert('¡Link copiado al portapapeles!')
     }
   }
+
+  const showInstallBtn = (canInstall || (isIOS() && !isStandalone())) && !isStandalone()
 
   const fmt = v => v != null ? `$${Number(v).toFixed(2)}` : '—'
 
@@ -359,13 +391,86 @@ export default function LandingPage() {
           </div>
           <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.3px' }}>GasMap</span>
         </div>
-        <Link to="/register" style={{
-          background: ACCENT, color: 'white', textDecoration: 'none',
-          fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8
-        }}>
-          Abrir app
-        </Link>
+        {showInstallBtn ? (
+          <button
+            onClick={handleInstall}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 7,
+              background: ACCENT, color: 'white', border: 'none',
+              fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8,
+              cursor: 'pointer', fontFamily: 'var(--font-body)',
+            }}
+          >
+            <Download size={14} />
+            Instalar app
+          </button>
+        ) : (
+          <Link to="/register" style={{
+            background: ACCENT, color: 'white', textDecoration: 'none',
+            fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8
+          }}>
+            Abrir app
+          </Link>
+        )}
       </nav>
+
+      {/* iOS install instructions modal */}
+      {showIOSModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end' }}
+          onClick={() => setShowIOSModal(false)}
+        >
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} />
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              position: 'relative', width: '100%', zIndex: 1,
+              background: 'linear-gradient(180deg, #13131a 0%, #0d0d13 100%)',
+              borderRadius: '24px 24px 0 0',
+              border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none',
+              padding: '28px 28px 48px',
+            }}
+          >
+            <button
+              onClick={() => setShowIOSModal(false)}
+              style={{
+                position: 'absolute', top: 16, right: 16,
+                width: 32, height: 32, borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)', border: 'none',
+                cursor: 'pointer', color: 'white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <X size={16} />
+            </button>
+
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'white', marginBottom: 6 }}>
+              Instala GasMap en iPhone
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 24 }}>3 pasos — sin App Store, completamente gratis</div>
+
+            {[
+              { step: '1', icon: '⬆️', label: 'Toca el botón Compartir', sub: 'El ícono de la flecha hacia arriba en Safari' },
+              { step: '2', icon: '➕', label: '"Agregar a pantalla de inicio"', sub: 'Desplázate en el menú hasta encontrarlo' },
+              { step: '3', icon: '✅', label: 'Toca "Agregar"', sub: 'GasMap aparece en tu pantalla de inicio' },
+            ].map(({ step, icon, label, sub }) => (
+              <div key={step} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 18 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                  background: 'rgba(94,106,210,0.12)', border: '1px solid rgba(94,106,210,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
+                }}>
+                  {icon}
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 2 }}>{label}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-muted)' }}>{sub}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <section style={{
