@@ -16,6 +16,11 @@ if ('serviceWorker' in navigator) {
   })
 }
 
+if (window.__GASMAP_ESTADO__) {
+  sessionStorage.setItem('gasmap_estado_prefilter', window.__GASMAP_ESTADO__)
+  window.history.replaceState(null, '', '/gasolineras-nl/')
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

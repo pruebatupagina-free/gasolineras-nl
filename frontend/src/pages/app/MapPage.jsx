@@ -73,7 +73,11 @@ function MapPageInner() {
 
   const [activeTab, setActiveTab] = useState('home')
   const [combustible, setCombustible] = useState('magna')
-  const [estadoFilter, setEstadoFilter] = useState('')
+  const [estadoFilter, setEstadoFilter] = useState(() => {
+    const pre = sessionStorage.getItem('gasmap_estado_prefilter')
+    if (pre) { sessionStorage.removeItem('gasmap_estado_prefilter'); return pre }
+    return ''
+  })
   const [selectedStation, setSelectedStation] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [showNotificaciones, setShowNotificaciones] = useState(false)
