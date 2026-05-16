@@ -119,7 +119,6 @@ export default function OnboardingModal({ onComplete }) {
   }
 
   function complete() {
-    localStorage.setItem('onboardingCompleted', '1')
     onComplete()
   }
 

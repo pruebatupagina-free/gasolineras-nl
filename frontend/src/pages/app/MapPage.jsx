@@ -57,15 +57,19 @@ function useNextSyncCountdown() {
 }
 
 function MapPageInner() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const { position: userLocation } = useGeolocation()
+
   const [activeTab, setActiveTab] = useState('home')
   const [combustible, setCombustible] = useState('magna')
   const [selectedStation, setSelectedStation] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
-  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('onboardingCompleted'))
-
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const { position: userLocation } = useGeolocation()
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    const uid = user?._id
+    if (!uid) return false
+    return !localStorage.getItem(`onboardingCompleted_${uid}`)
+  })
 
   const handleLogout = () => { logout(); navigate('/login') }
   const syncCountdown = useNextSyncCountdown()
@@ -212,7 +216,12 @@ function MapPageInner() {
   // ── Mobile layout ──────────────────────────────────────────────────────────
   return (
     <div style={{ height: '100dvh', background: 'var(--color-bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {showOnboarding && <OnboardingModal onComplete={() => setShowOnboarding(false)} />}
+      {showOnboarding && (
+        <OnboardingModal onComplete={() => {
+          localStorage.setItem(`onboardingCompleted_${user._id}`, '1')
+          setShowOnboarding(false)
+        }} />
+      )}
 
       {/* Tab content */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
