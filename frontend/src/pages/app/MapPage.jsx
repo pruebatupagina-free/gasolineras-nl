@@ -8,10 +8,12 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 
 import BottomNav from '../../components/app/BottomNav'
 import HomeTab from '../../components/app/HomeTab'
+import EstacionesTab from '../../components/app/EstacionesTab'
 import MapTab from '../../components/app/MapTab'
 import GarajeTab from '../../components/app/GarajeTab'
 import HistorialTab from '../../components/app/HistorialTab'
 import PerfilTab from '../../components/app/PerfilTab'
+import OnboardingModal from '../../components/app/OnboardingModal'
 
 class MapErrorBoundary extends Component {
   state = { hasError: false }
@@ -58,6 +60,7 @@ function MapPageInner() {
   const [combustible, setCombustible] = useState('magna')
   const [selectedStation, setSelectedStation] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('onboardingCompleted'))
 
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -106,6 +109,15 @@ function MapPageInner() {
         syncCountdown={syncCountdown}
         onViewMap={() => setActiveTab('mapa')}
         onSelectStation={handleSelectStation}
+      />
+    ),
+    estaciones: (
+      <EstacionesTab
+        estaciones={estaciones}
+        combustible={combustible}
+        onCombustibleChange={setCombustible}
+        userLocation={userLocation}
+        onSelectStation={s => { setSelectedStation(s); setActiveTab('mapa') }}
       />
     ),
     mapa: (
@@ -199,6 +211,8 @@ function MapPageInner() {
   // ── Mobile layout ──────────────────────────────────────────────────────────
   return (
     <div style={{ height: '100dvh', background: 'var(--color-bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      {showOnboarding && <OnboardingModal onComplete={() => setShowOnboarding(false)} />}
+
       {/* Tab content */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
         {tabContent[activeTab]}
