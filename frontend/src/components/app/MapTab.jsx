@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
+import { useState, useEffect, useRef } from 'react'
+import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
-import { Navigation, Loader2 } from 'lucide-react'
+import { Navigation, Loader2, Layers } from 'lucide-react'
 import StationSheet from './StationSheet'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -16,6 +16,17 @@ const COMBUSTIBLES = [
   { key: 'premium', label: 'Premium', color: '#5E6AD2' },
   { key: 'diesel',  label: 'Diésel',  color: '#F59E0B' },
 ]
+
+function priceToColor(precio, min, max) {
+  if (!precio || min === max) return '#F59E0B'
+  const pct = Math.max(0, Math.min(1, (precio - min) / (max - min)))
+  if (pct < 0.5) {
+    const t = pct * 2
+    return `rgb(${Math.round(34 + t * 211)},${Math.round(197 - t * 39)},${Math.round(94 - t * 83)})`
+  }
+  const t = (pct - 0.5) * 2
+  return `rgb(${Math.round(245 - t * 6)},${Math.round(158 - t * 90)},${Math.round(11 + t * 57)})`
+}
 
 function getPriceClass(precio, min, max) {
   if (!precio) return 'marker-mid'
@@ -92,6 +103,7 @@ function MapCenterOnStation({ station, mapRef }) {
 
 export default function MapTab({ estaciones, combustible, onCombustibleChange, userLocation, selectedStation, onSelectStation, isLoading }) {
   const mapRef = useRef(null)
+  const [showHeatmap, setShowHeatmap] = useState(false)
 
   const prices = estaciones?.map(e => e.precios?.[combustible]).filter(Boolean) ?? []
   const minP = prices.length ? Math.min(...prices) : 0
@@ -166,6 +178,19 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
         {selectedStation && <MapCenterOnStation station={selectedStation} />}
         {userLocation && <UserMarker position={userLocation} />}
 
+        {showHeatmap && estaciones?.map(station => {
+          const precio = station.precios?.[combustible]
+          if (!precio) return null
+          return (
+            <Circle
+              key={`heat-${station._id}`}
+              center={[station.lat, station.lng]}
+              radius={1400}
+              pathOptions={{ color: 'transparent', fillColor: priceToColor(precio, minP, maxP), fillOpacity: 0.28 }}
+            />
+          )
+        })}
+
         {estaciones?.map(station => {
           const precio = station.precios?.[combustible]
           const priceClass = getPriceClass(precio, minP, maxP)
@@ -197,6 +222,46 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
         >
           <Navigation size={18} color="#5E6AD2" />
         </button>
+      )}
+
+      {/* Heat map toggle button */}
+      <button
+        className="pressable"
+        onClick={() => setShowHeatmap(prev => !prev)}
+        title={showHeatmap ? 'Ocultar mapa de calor' : 'Mapa de calor de precios'}
+        style={{
+          position: 'absolute', bottom: userLocation ? 136 : 84, right: 16, zIndex: 900,
+          width: 44, height: 44, borderRadius: '50%',
+          background: showHeatmap ? 'rgba(239,68,68,0.15)' : 'rgba(5,5,6,0.92)',
+          border: showHeatmap ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(10px)',
+          transition: 'all 0.2s',
+        }}
+      >
+        <Layers size={18} color={showHeatmap ? '#EF4444' : '#8A8F98'} />
+      </button>
+
+      {/* Heat map legend */}
+      {showHeatmap && (
+        <div style={{
+          position: 'absolute', bottom: 84, left: 16, zIndex: 900,
+          background: 'rgba(5,5,6,0.9)', border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 20, padding: '8px 14px',
+          display: 'flex', alignItems: 'center', gap: 8,
+          backdropFilter: 'blur(10px)', boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E' }} />
+            <span style={{ fontSize: 10, color: '#8A8F98', fontFamily: 'var(--font-body)', fontWeight: 600 }}>Barato</span>
+          </div>
+          <div style={{ width: 44, height: 4, borderRadius: 2, background: 'linear-gradient(to right, #22C55E, #F59E0B, #EF4444)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 10, color: '#8A8F98', fontFamily: 'var(--font-body)', fontWeight: 600 }}>Caro</span>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#EF4444' }} />
+          </div>
+        </div>
       )}
 
       {/* Station Sheet */}
