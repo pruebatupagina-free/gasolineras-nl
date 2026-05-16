@@ -6,7 +6,6 @@ const ACCENT = '#5E6AD2'
 const ACCENT_GLOW = 'rgba(94,106,210,0.28)'
 const API_BASE = import.meta.env.VITE_API_URL || 'https://gasonl-backend-production.up.railway.app/api'
 const APP_URL = 'https://pruebatupagina-free.github.io/gasolineras-nl/'
-const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(APP_URL)}&bgcolor=141416&color=ededef&margin=12&format=png`
 
 const FAQ_ITEMS = [
   {
@@ -34,6 +33,177 @@ const FAQ_ITEMS = [
     a: 'Sí. Solo pedimos nombre y correo electrónico. No guardamos datos bancarios, contraseñas en texto plano ni información sensible. Tu privacidad está protegida.'
   },
 ]
+
+function AppMockup({ stats }) {
+  const f = v => v != null ? `$${Number(v).toFixed(2)}` : null
+  const minP = f(stats?.magna?.min) ?? '$18.99'
+  const avgP = f(stats?.magna?.avg) ?? '$23.61'
+  const maxP = f(stats?.magna?.max) ?? '$27.99'
+
+  return (
+    <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+
+      {/* Glow behind phone */}
+      <div style={{
+        position: 'absolute', width: 380, height: 380, borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(94,106,210,0.22) 0%, transparent 70%)',
+        top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+        filter: 'blur(70px)', pointerEvents: 'none',
+      }} />
+
+      {/* Phone frame */}
+      <div style={{
+        position: 'relative', width: 256,
+        borderRadius: 44, background: '#080809',
+        border: '1.5px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 40px 80px rgba(0,0,0,0.65), inset 0 0 0 1px rgba(255,255,255,0.04)',
+        overflow: 'hidden',
+      }}>
+
+        {/* Dynamic island */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, marginBottom: 4 }}>
+          <div style={{ width: 90, height: 26, background: '#000', borderRadius: 13 }} />
+        </div>
+
+        {/* App content */}
+        <div style={{ padding: '4px 14px 0' }}>
+
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div>
+              <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 1 }}>Buenos días,</div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Eduardo 👋</div>
+            </div>
+            <div style={{
+              background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.25)',
+              borderRadius: 8, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4,
+            }}>
+              <span style={{ fontSize: 7.5, color: '#A5B4FC', fontWeight: 700 }}>⏱ 5h 20m</span>
+            </div>
+          </div>
+
+          {/* Prices label */}
+          <div style={{ fontSize: 7.5, fontWeight: 700, color: '#5E6AD2', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>
+            Precios hoy — Magna
+          </div>
+
+          {/* 3 stat cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5, marginBottom: 10 }}>
+            {[
+              { label: 'MÍNIMO', value: minP, color: '#22C55E', bg: 'rgba(34,197,94,0.1)' },
+              { label: 'PROMEDIO', value: avgP, color: '#5E6AD2', bg: 'rgba(94,106,210,0.1)' },
+              { label: 'MÁXIMO', value: maxP, color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
+            ].map(c => (
+              <div key={c.label} style={{ background: c.bg, borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
+                <div style={{ fontSize: 6, color: '#6B7280', fontWeight: 700, letterSpacing: 0.3, marginBottom: 3, textTransform: 'uppercase' }}>{c.label}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: c.color, fontFamily: 'var(--font-heading)' }}>{c.value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Best station label */}
+          <div style={{ fontSize: 7.5, fontWeight: 700, color: '#5E6AD2', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>
+            Precio más bajo
+          </div>
+
+          {/* Station card */}
+          <div style={{
+            background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)',
+            borderLeft: '2.5px solid #22C55E', borderRadius: 9, padding: '8px 9px',
+            display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10,
+          }}>
+            <div style={{
+              width: 26, height: 26, borderRadius: 7, background: 'rgba(34,197,94,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0,
+            }}>⛽</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 7.5, color: '#22C55E', fontWeight: 700, marginBottom: 1, textTransform: 'uppercase' }}>MÁS BARATA · 2.3 km</div>
+              <div style={{ fontSize: 10.5, color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>PEMEX Revolución</div>
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#22C55E', fontFamily: 'var(--font-heading)', flexShrink: 0 }}>{minP}</div>
+          </div>
+
+          {/* Mini map */}
+          <div style={{ borderRadius: 10, overflow: 'hidden', height: 82, position: 'relative', background: '#0A0E16' }}>
+            <svg width="100%" height="82" style={{ position: 'absolute', inset: 0 }}>
+              <line x1="0" y1="41" x2="256" y2="41" stroke="#1A2030" strokeWidth="8" />
+              <line x1="120" y1="0" x2="120" y2="82" stroke="#1A2030" strokeWidth="8" />
+              <line x1="0" y1="18" x2="256" y2="68" stroke="#1A2030" strokeWidth="5" />
+              <line x1="0" y1="68" x2="200" y2="12" stroke="#1A2030" strokeWidth="5" />
+            </svg>
+            {[
+              { left: '18%', top: '40%', price: minP, color: '#22C55E', active: true },
+              { left: '59%', top: '60%', price: avgP, color: '#F59E0B', active: false },
+              { left: '78%', top: '22%', price: maxP, color: '#EF4444', active: false },
+            ].map((pin, i) => (
+              <div key={i} style={{
+                position: 'absolute', left: pin.left, top: pin.top,
+                transform: 'translate(-50%, -50%)',
+                background: pin.active ? pin.color : `${pin.color}CC`,
+                borderRadius: 5, padding: '2px 5px',
+                fontSize: 8, fontWeight: 800, color: 'white',
+                boxShadow: pin.active ? `0 2px 10px ${pin.color}70` : 'none',
+                border: pin.active ? '1.5px solid white' : 'none',
+              }}>{pin.price}</div>
+            ))}
+            {/* User dot */}
+            <div style={{
+              position: 'absolute', left: '42%', top: '50%',
+              width: 9, height: 9, borderRadius: '50%',
+              background: '#5E6AD2', boxShadow: '0 0 0 4px rgba(94,106,210,0.25)',
+              transform: 'translate(-50%, -50%)',
+            }} />
+          </div>
+        </div>
+
+        {/* Bottom nav */}
+        <div style={{
+          height: 44, background: 'rgba(8,8,9,0.98)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+          paddingBottom: 4,
+        }}>
+          {[
+            { label: 'Inicio', active: true },
+            { label: 'Est.', active: false },
+            { label: 'Nav.', active: false },
+            { label: 'Garaje', active: false },
+            { label: 'Perfil', active: false },
+          ].map(tab => (
+            <div key={tab.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, opacity: tab.active ? 1 : 0.3 }}>
+              <div style={{ width: 16, height: 3, borderRadius: 2, background: tab.active ? '#5E6AD2' : 'transparent', marginBottom: 1 }} />
+              <span style={{ fontSize: 6, color: tab.active ? '#5E6AD2' : '#6B7280', fontWeight: tab.active ? 700 : 400, letterSpacing: 0.3 }}>{tab.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Badge: CRE en vivo */}
+      <div style={{
+        position: 'absolute', bottom: 58, right: 4,
+        background: 'rgba(8,8,9,0.96)', border: '1px solid rgba(34,197,94,0.35)',
+        borderRadius: 20, padding: '7px 13px',
+        display: 'flex', alignItems: 'center', gap: 6,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+      }}>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E80' }} />
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#22C55E', letterSpacing: 0.5 }}>CRE · EN VIVO</span>
+      </div>
+
+      {/* Badge: ahorro */}
+      <div style={{
+        position: 'absolute', top: 72, left: 4,
+        background: 'rgba(8,8,9,0.96)', border: '1px solid rgba(94,106,210,0.35)',
+        borderRadius: 20, padding: '7px 13px',
+        display: 'flex', alignItems: 'center', gap: 6,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+      }}>
+        <span style={{ fontSize: 12 }}>💰</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: '#A5B4FC', letterSpacing: 0.3 }}>Ahorra hasta $640/mes</span>
+      </div>
+    </div>
+  )
+}
 
 function FaqItem({ item, open, onToggle }) {
   return (
@@ -116,12 +286,26 @@ export default function LandingPage() {
       <section style={{
         minHeight: '100dvh', display: 'flex', flexDirection: 'column',
         justifyContent: 'center', padding: '90px 28px 60px',
-        maxWidth: 1140, margin: '0 auto'
+        maxWidth: 1140, margin: '0 auto', position: 'relative', overflow: 'hidden',
       }}>
+        {/* Ambient glow */}
+        <div style={{
+          position: 'absolute', right: '10%', top: '20%',
+          width: 560, height: 560, borderRadius: '50%', pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(94,106,210,0.13) 0%, transparent 65%)',
+          filter: 'blur(80px)',
+        }} />
+        <div style={{
+          position: 'absolute', left: '-5%', bottom: '10%',
+          width: 320, height: 320, borderRadius: '50%', pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 65%)',
+          filter: 'blur(60px)',
+        }} />
+
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: 64, alignItems: 'center'
+          gap: 64, alignItems: 'center', position: 'relative',
         }}>
 
           {/* Left */}
@@ -137,10 +321,25 @@ export default function LandingPage() {
               {' '}en MX
             </h1>
 
-            <p style={{ fontSize: 17, color: 'var(--color-muted)', marginBottom: 36, lineHeight: 1.75, maxWidth: 440 }}>
+            <p style={{ fontSize: 17, color: 'var(--color-muted)', marginBottom: 24, lineHeight: 1.75, maxWidth: 440 }}>
               Precios oficiales de la CRE. Encuentra la estación más barata cerca de ti.
               Gratis, sin tarjeta de crédito.
             </p>
+
+            {/* Social proof */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 32, flexWrap: 'wrap' }}>
+              {[
+                { dot: '#22C55E', text: '1,276+ gasolineras' },
+                { dot: '#5E6AD2', text: 'Actualización CRE diaria' },
+                { dot: '#F59E0B', text: 'Completamente gratis' },
+              ].map((item, i) => (
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--color-muted)', fontWeight: 500 }}>
+                  {i > 0 && <span style={{ color: 'rgba(255,255,255,0.12)', marginRight: 1 }}>·</span>}
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: item.dot, display: 'inline-block', flexShrink: 0 }} />
+                  {item.text}
+                </span>
+              ))}
+            </div>
 
             {/* CTAs */}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
@@ -163,30 +362,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Right — QR card */}
+          {/* Right — App mockup */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              background: 'rgba(20,20,22,0.95)', border: '1px solid var(--color-border-strong)',
-              borderRadius: 20, padding: '32px 36px', textAlign: 'center', maxWidth: 280
-            }}>
-              <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: 20 }}>
-                Escanea para abrir la app
-              </p>
-              <img
-                src={QR_URL}
-                alt="QR GasMap"
-                width={180} height={180}
-                style={{ borderRadius: 12, display: 'block', margin: '0 auto' }}
-              />
-              <p style={{ fontSize: 12, color: 'var(--color-muted)', marginTop: 18, lineHeight: 1.6 }}>
-                Apunta la cámara de tu celular al código QR o toca el botón de arriba
-              </p>
-            </div>
+            <AppMockup stats={stats} />
           </div>
         </div>
 
         {/* Scroll hint */}
-        <div style={{ textAlign: 'center', marginTop: 64 }}>
+        <div style={{ textAlign: 'center', marginTop: 64, position: 'relative' }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--color-muted)' }}>
             ¿Qué incluye?
           </span>
