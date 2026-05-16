@@ -239,7 +239,7 @@ function SkeletonRow() {
   )
 }
 
-export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, isLoading, onViewMap, onSelectStation }) {
+export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, isLoading, onViewMap, onSelectStation, noLeidas = 0, onOpenNotificaciones }) {
   const { data: stats } = useQuery({
     queryKey: ['stats'],
     queryFn: () => client.get('/estaciones/stats').then(r => r.data),
@@ -270,16 +270,29 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
         {/* Greeting */}
         <div className="animate-slide-up" style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 13, color: 'var(--color-muted)', marginBottom: 2 }}>{greeting},</div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <div style={{ fontSize: 24, fontWeight: 800, fontFamily: 'var(--font-heading)', color: 'white' }}>
               {nombre.charAt(0).toUpperCase() + nombre.slice(1)} 👋
             </div>
-            {syncCountdown && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 20, padding: '4px 10px' }}>
-                <Clock size={11} color="#5E6AD2" />
-                <span style={{ fontSize: 11, color: '#818CF8', fontWeight: 600 }}>Actualiza en {syncCountdown}</span>
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              {syncCountdown && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)', borderRadius: 20, padding: '4px 10px' }}>
+                  <Clock size={11} color="#5E6AD2" />
+                  <span style={{ fontSize: 11, color: '#818CF8', fontWeight: 600 }}>Actualiza en {syncCountdown}</span>
+                </div>
+              )}
+              <button
+                onClick={onOpenNotificaciones}
+                style={{ position: 'relative', width: 36, height: 36, borderRadius: 11, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+              >
+                <Bell size={16} color={noLeidas > 0 ? '#818CF8' : 'var(--color-muted)'} />
+                {noLeidas > 0 && (
+                  <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, background: '#EF4444', color: 'white', fontSize: 9, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 3px', border: '1.5px solid var(--color-bg)' }}>
+                    {noLeidas > 9 ? '9+' : noLeidas}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
 

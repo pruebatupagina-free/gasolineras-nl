@@ -31,6 +31,8 @@ app.use('/api/auth', require('./routes/auth'))
 app.use('/api/estaciones', require('./routes/estaciones'))
 app.use('/api/garaje', require('./routes/garaje'))
 app.use('/api/reportes', require('./routes/reportes'))
+app.use('/api/alertas', require('./routes/alertas'))
+app.use('/api/notificaciones', require('./routes/notificaciones'))
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', ts: new Date(), env: process.env.NODE_ENV })

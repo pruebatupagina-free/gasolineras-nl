@@ -15,6 +15,7 @@ import GarajeTab from '../../components/app/GarajeTab'
 import HistorialTab from '../../components/app/HistorialTab'
 import PerfilTab from '../../components/app/PerfilTab'
 import OnboardingModal from '../../components/app/OnboardingModal'
+import NotificacionesPanel from '../../components/app/NotificacionesPanel'
 
 class MapErrorBoundary extends Component {
   state = { hasError: false }
@@ -65,6 +66,7 @@ function MapPageInner() {
   const [combustible, setCombustible] = useState('magna')
   const [selectedStation, setSelectedStation] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [showNotificaciones, setShowNotificaciones] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(() => {
     const uid = user?._id
     if (!uid) return false
@@ -79,6 +81,14 @@ function MapPageInner() {
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
+
+  const { data: notifData, refetch: refetchNotifs } = useQuery({
+    queryKey: ['notificaciones'],
+    queryFn: () => client.get('/notificaciones').then(r => r.data),
+    staleTime: 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+  })
+  const noLeidas = notifData?.no_leidas ?? 0
 
   const { data: estaciones = [], isLoading } = useQuery({
     queryKey: ['estaciones', combustible, userLocation?.lat, userLocation?.lng],
@@ -115,6 +125,8 @@ function MapPageInner() {
         isLoading={isLoading}
         onViewMap={() => setActiveTab('mapa')}
         onSelectStation={handleSelectStation}
+        noLeidas={noLeidas}
+        onOpenNotificaciones={() => setShowNotificaciones(true)}
       />
     ),
     estaciones: (
@@ -241,6 +253,11 @@ function MapPageInner() {
           </div>
         )}
       </div>
+
+      {/* Notificaciones panel */}
+      {showNotificaciones && (
+        <NotificacionesPanel onClose={() => { setShowNotificaciones(false); refetchNotifs() }} />
+      )}
 
       {/* Station detail overlay for non-map tabs */}
       {selectedStation && activeTab !== 'mapa' && (

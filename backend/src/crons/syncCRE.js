@@ -1,6 +1,8 @@
 const cron = require('node-cron')
 const Estacion = require('../models/Estacion')
 const PrecioHistorial = require('../models/PrecioHistorial')
+const Alerta = require('../models/Alerta')
+const Notificacion = require('../models/Notificacion')
 const { fetchEstacionesCRE } = require('../utils/creApi')
 const { geocodeAllPending } = require('../utils/geocode')
 
@@ -53,11 +55,56 @@ async function sincronizarPrecios() {
       console.log(`[Sync CRE] 📸 ${snapBulk.length} snapshots de precio guardados`)
     }
 
+    // Verificar alertas de precio activas
+    verificarAlertas().catch(err => console.error('[Alertas]', err.message))
+
     // Geocodificar pendientes en background (no bloquea)
     geocodeAllPending().catch(err => console.error('[Geocode]', err.message))
   } catch (err) {
     console.error('[Sync CRE] Error:', err.message)
   }
+}
+
+async function verificarAlertas() {
+  const alertas = await Alerta.find({ activa: true })
+    .populate('estacion_id', 'nombre precios')
+    .lean()
+  if (!alertas.length) return
+
+  const ahora = new Date()
+  const hace24h = new Date(ahora - 24 * 60 * 60 * 1000)
+
+  const disparadas = alertas.filter(a => {
+    if (!a.estacion_id) return false
+    const precio = a.estacion_id.precios?.[a.combustible]
+    if (!precio || precio < 15) return false
+    if (precio > a.precio_objetivo) return false
+    // No re-notificar si ya se disparó en las últimas 24h
+    if (a.ultima_notificacion && a.ultima_notificacion > hace24h) return false
+    return true
+  })
+
+  if (!disparadas.length) {
+    console.log('[Alertas] 0 alertas disparadas')
+    return
+  }
+
+  const notifs = disparadas.map(a => ({
+    usuario_id: a.usuario_id,
+    tipo: 'alerta_precio',
+    mensaje: `${a.estacion_id.nombre}: ${a.combustible} a $${a.estacion_id.precios[a.combustible].toFixed(2)} — por debajo de tu alerta de $${a.precio_objetivo.toFixed(2)}`,
+    estacion_id: a.estacion_id._id,
+    combustible: a.combustible,
+    precio_actual: a.estacion_id.precios[a.combustible],
+  }))
+
+  await Notificacion.insertMany(notifs)
+
+  // Actualizar ultima_notificacion en las alertas disparadas
+  const ids = disparadas.map(a => a._id)
+  await Alerta.updateMany({ _id: { $in: ids } }, { $set: { ultima_notificacion: ahora } })
+
+  console.log(`[Alertas] 🔔 ${disparadas.length} alertas disparadas`)
 }
 
 module.exports = function initCrons() {

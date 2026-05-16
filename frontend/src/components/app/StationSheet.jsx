@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react'
-import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2 } from 'lucide-react'
+import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell } from 'lucide-react'
 import ReportModal from './ReportModal'
+import AlertaModal from './AlertaModal'
 import client from '../../api/client'
 
 const COMBUST_COLORS = { magna: '#22C55E', premium: '#5E6AD2', diesel: '#F59E0B' }
@@ -90,6 +91,7 @@ function distanceKm(lat1, lng1, lat2, lng2) {
 
 export default function StationSheet({ station, combustible, userLocation, onClose, onNavigate }) {
   const [reportCombust, setReportCombust] = useState(null)
+  const [showAlerta, setShowAlerta] = useState(false)
   const [historial, setHistorial] = useState(null)
   const [loadingHist, setLoadingHist] = useState(false)
   const sheetRef = useRef(null)
@@ -294,17 +296,29 @@ export default function StationSheet({ station, combustible, userLocation, onClo
               Cómo llegar
             </a>
             <button
+              onClick={() => setShowAlerta(true)}
+              className="pressable"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.25)',
+                color: '#818CF8', borderRadius: 14, padding: '14px 14px',
+                fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
+              }}
+            >
+              <Bell size={15} />
+              Alerta
+            </button>
+            <button
               onClick={() => setReportCombust(combustible)}
               className="pressable"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',
-                color: '#F59E0B', borderRadius: 14, padding: '14px 16px',
+                color: '#F59E0B', borderRadius: 14, padding: '14px 14px',
                 fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
               }}
             >
               <Flag size={15} />
-              Reportar
             </button>
           </div>
         </div>
@@ -315,6 +329,15 @@ export default function StationSheet({ station, combustible, userLocation, onClo
           station={station}
           combustible={reportCombust}
           onClose={() => setReportCombust(null)}
+        />
+      )}
+
+      {showAlerta && (
+        <AlertaModal
+          station={station}
+          combustible={combustible}
+          precioActual={activePrecio}
+          onClose={() => setShowAlerta(false)}
         />
       )}
     </>
