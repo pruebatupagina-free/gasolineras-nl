@@ -142,7 +142,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
 
       {/* Count */}
       <div style={{ padding: '8px 20px', fontSize: 11, color: '#8A8F98', fontWeight: 600, flexShrink: 0 }}>
-        {filtered.length} estaciones {municipio !== 'Todos' ? `en ${municipio}` : 'en NL'}
+        {filtered.length} estaciones {municipio !== 'Todos' ? `en ${municipio}` : 'en MX'}
         {query && ` · "${query}"`}
       </div>
 

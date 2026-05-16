@@ -6,7 +6,7 @@ const SLIDES = [
   {
     badge: 'EN TIEMPO REAL · CRE',
     title: 'Precios en tiempo real',
-    desc: 'Consulta los precios actualizados de todas las gasolineras de NL directamente desde la CRE.',
+    desc: 'Consulta los precios actualizados de todas las gasolineras de México directamente desde la CRE.',
     visual: () => (
       <div style={{ position: 'relative', width: 280, height: 200, margin: '0 auto' }}>
         {/* Grid lines */}

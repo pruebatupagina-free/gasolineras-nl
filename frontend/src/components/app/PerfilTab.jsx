@@ -162,7 +162,7 @@ export default function PerfilTab() {
         {/* Footer */}
         <div style={{ textAlign: 'center', paddingBottom: 8 }}>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)' }}>GasMap v{APP_VERSION}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.08)', marginTop: 3 }}>Datos oficiales de la CRE · Nuevo León, México</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.08)', marginTop: 3 }}>Datos oficiales de la CRE · México</div>
         </div>
       </div>
     </div>

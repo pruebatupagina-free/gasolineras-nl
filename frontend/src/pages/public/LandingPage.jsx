@@ -11,23 +11,15 @@ const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${
 const FAQ_ITEMS = [
   {
     q: '¿Cada cuánto se actualizan los precios de la CRE?',
-    a: 'Los precios se sincronizan diariamente a las 18:30 hrs (hora de Monterrey) directo desde la Comisión Reguladora de Energía. Siempre tienes el precio oficial del día.'
-  },
-  {
-    q: '¿Funciona en todo México o solo en Nuevo León?',
-    a: 'El piloto cubre las más de 1,276 gasolineras de Nuevo León, incluyendo los 9 municipios de la Zona Metropolitana de Monterrey. Próximamente se extenderá a más estados.'
+    a: 'Los precios se sincronizan diariamente directo desde la Comisión Reguladora de Energía. Siempre tienes el precio oficial del día.'
   },
   {
     q: '¿Puedo reportar un precio incorrecto en una gasolinera?',
     a: 'Sí. Desde el detalle de cualquier gasolinera puedes tocar "Reportar" si el precio en la bomba no coincide con el que muestra la app. Ayuda a toda la comunidad.'
   },
   {
-    q: '¿Funciona en todo Nuevo León o solo en Monterrey?',
-    a: 'Cubre los 9 municipios de la ZMM: Monterrey, San Pedro Garza García, Guadalupe, Apodaca, Escobedo, Santa Catarina, Juárez, García y San Nicolás de los Garza.'
-  },
-  {
     q: '¿Cuánto puedo ahorrar al mes usando GasMap?',
-    a: 'La diferencia entre la gasolinera más cara y la más barata en NL puede ser de hasta $4 por litro. Si cargas 40 litros a la semana, podrías ahorrar hasta $640 al mes eligiendo siempre la más barata cercana.'
+    a: 'La diferencia entre la gasolinera más cara y la más barata puede ser de hasta $4 por litro. Si cargas 40 litros a la semana, podrías ahorrar hasta $640 al mes eligiendo siempre la más barata cercana.'
   },
   {
     q: '¿Necesito crear una cuenta para ver los precios?',
@@ -35,7 +27,7 @@ const FAQ_ITEMS = [
   },
   {
     q: '¿En qué marcas de gasolineras funciona GasMap?',
-    a: 'En todas: PEMEX, BP, Shell, Mobil, Oxxo Gas, G500, Hidrosina y cualquier franquicia registrada ante la CRE. Si opera en NL, aparece en el mapa.'
+    a: 'En todas: PEMEX, BP, Shell, Mobil, Oxxo Gas, G500, Hidrosina y cualquier franquicia registrada ante la CRE. Si está registrada, aparece en el mapa.'
   },
   {
     q: '¿Es seguro registrarse en GasMap?',
@@ -87,7 +79,7 @@ export default function LandingPage() {
 
   function handleShare() {
     if (navigator.share) {
-      navigator.share({ title: 'GasMap', text: 'El precio real de la gasolina en Nuevo León', url: APP_URL })
+      navigator.share({ title: 'GasMap', text: 'El precio real de la gasolina en México', url: APP_URL })
     } else {
       navigator.clipboard?.writeText(APP_URL)
       alert('¡Link copiado al portapapeles!')
@@ -142,7 +134,7 @@ export default function LandingPage() {
             }}>
               El precio real de la{' '}
               <span style={{ color: ACCENT }}>gasolina</span>
-              {' '}en NL
+              {' '}en MX
             </h1>
 
             <p style={{ fontSize: 17, color: 'var(--color-muted)', marginBottom: 36, lineHeight: 1.75, maxWidth: 440 }}>
@@ -288,7 +280,7 @@ export default function LandingPage() {
               Usamos datos oficiales de la Comisión Reguladora de Energía (CRE) actualizados
               diariamente, combinados con reportes de nuestra comunidad que contribuye con
               información en terreno. El resultado es el mapa de gasolina más completo y actualizado
-              de Nuevo León, con más de 1,276 estaciones.
+              de México, con más de 1,276 estaciones.
             </p>
             <p style={{ color: 'var(--color-muted)', fontSize: 14, marginTop: 20, fontStyle: 'italic' }}>
               · GasMap es completamente gratis.
@@ -306,7 +298,7 @@ export default function LandingPage() {
               </span>
             </div>
             <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(22px, 3vw, 32px)', letterSpacing: '-0.5px', marginBottom: 8 }}>
-              ¿Cuánto cuesta la gasolina en NL?
+              ¿Cuánto cuesta la gasolina en MX?
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
               Los precios varían por estación, municipio y día. Aquí el rango oficial de hoy según la CRE.
@@ -418,7 +410,7 @@ export default function LandingPage() {
                 <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>GasMap</span>
               </div>
               <p style={{ color: 'var(--color-muted)', fontSize: 12 }}>
-                Plataforma de precios de gasolina — Nuevo León, México · 2026
+                Plataforma de precios de gasolina — México · 2026
               </p>
             </div>
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
