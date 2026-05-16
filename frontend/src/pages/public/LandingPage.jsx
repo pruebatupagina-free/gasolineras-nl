@@ -134,18 +134,6 @@ export default function LandingPage() {
 
           {/* Left */}
           <div>
-            {/* Badge */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.25)',
-              borderRadius: 100, padding: '5px 14px', marginBottom: 28
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 8px #22C55E' }} />
-              <span style={{ fontSize: 12, color: '#A5B4FC', fontWeight: 600, letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-                Precios en tiempo real · CRE
-              </span>
-            </div>
-
             {/* Headline */}
             <h1 style={{
               fontFamily: 'var(--font-heading)', fontWeight: 800, lineHeight: 1.05,
@@ -161,27 +149,6 @@ export default function LandingPage() {
               Precios oficiales de la CRE. Encuentra la estación más barata cerca de ti.
               Gratis, sin tarjeta de crédito.
             </p>
-
-            {/* Stats row */}
-            <div style={{
-              display: 'flex', gap: 0, marginBottom: 36,
-              border: '1px solid var(--color-border)', borderRadius: 14,
-              overflow: 'hidden', maxWidth: '100%'
-            }}>
-              {[
-                { value: '1,276+', label: 'Gasolineras en NL' },
-                { value: 'Diario', label: 'Actualización CRE' },
-                { value: '100%', label: 'Gratis' },
-              ].map((s, i) => (
-                <div key={s.label} style={{
-                  padding: '14px 24px', textAlign: 'center',
-                  borderRight: i < 2 ? '1px solid var(--color-border)' : 'none'
-                }}>
-                  <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 22, color: 'var(--color-fg)' }}>{s.value}</div>
-                  <div style={{ fontSize: 11, color: 'var(--color-muted)', marginTop: 3, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
 
             {/* CTAs */}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>

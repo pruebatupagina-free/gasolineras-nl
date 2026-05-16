@@ -207,20 +207,21 @@ function StatCard({ label, value, unit, color, icon: Icon, delay = 0 }) {
         background: 'rgba(255,255,255,0.04)',
         border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 16,
-        padding: '14px 14px 12px',
-        flex: 1,
+        padding: '12px 10px 10px',
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 8, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={13} color={color} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 7 }}>
+        <div style={{ width: 24, height: 24, borderRadius: 7, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={11} color={color} />
         </div>
-        <span style={{ fontSize: 10, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</span>
+        <span style={{ fontSize: 9, color: 'var(--color-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
       </div>
-      <div style={{ fontSize: 20, fontWeight: 800, color, fontFamily: 'var(--font-heading)', lineHeight: 1 }}>
+      <div style={{ fontSize: 18, fontWeight: 800, color, fontFamily: 'var(--font-heading)', lineHeight: 1 }}>
         ${animated.toFixed(2)}
       </div>
-      {unit && <div style={{ fontSize: 10, color: 'var(--color-muted)', marginTop: 2 }}>{unit}</div>}
+      {unit && <div style={{ fontSize: 9, color: 'var(--color-muted)', marginTop: 2 }}>{unit}</div>}
     </div>
   )
 }
@@ -278,7 +279,7 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
               Precios hoy — {combustible.charAt(0).toUpperCase() + combustible.slice(1)}
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {statMin && <StatCard label="Mínimo" value={statMin} color="#22C55E" icon={TrendingDown} delay={1} />}
               {statAvg && <StatCard label="Promedio" value={statAvg} color="#5E6AD2" icon={Fuel} delay={2} />}
               {statMax && <StatCard label="Máximo" value={statMax} color="#EF4444" icon={TrendingUp} delay={3} />}
