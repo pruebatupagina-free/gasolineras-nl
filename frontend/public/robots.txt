@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pruebatupagina-free.github.io/gasolineras-nl/sitemap.xml
