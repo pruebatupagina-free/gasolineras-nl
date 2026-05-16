@@ -480,38 +480,40 @@ export default function LandingPage() {
         }}>
           {[
             {
-              icon: '🪙',
-              title: 'Precio más bajo primero',
-              desc: 'Las estaciones se ordenan por precio según tu ubicación. La más barata aparece siempre al tope, todos los días.'
+              icon: '🪙', title: 'Precio más bajo primero',
+              desc: 'Las estaciones se ordenan por precio según tu ubicación. La más barata aparece siempre al tope, todos los días.',
+              color: '#22C55E', bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.2)',
             },
             {
-              icon: '📋',
-              title: 'Precios en tiempo real',
-              desc: 'Mapa de estaciones con precios oficiales de la CRE actualizados diariamente. Sin estimaciones.'
+              icon: '📡', title: 'Precios en tiempo real',
+              desc: 'Mapa de estaciones con precios oficiales de la CRE actualizados diariamente. Sin estimaciones.',
+              color: '#5E6AD2', bg: 'rgba(94,106,210,0.1)', border: 'rgba(94,106,210,0.2)',
             },
             {
-              icon: '📱',
-              title: 'Acceso inmediato desde el navegador',
-              desc: 'Abre GasMap desde tu celular y úsala al instante. Sin descargar nada, sin instalaciones previas.'
+              icon: '⚡', title: 'Acceso inmediato desde el navegador',
+              desc: 'Abre GasMap desde tu celular y úsala al instante. Sin descargar nada, sin instalaciones previas.',
+              color: '#F59E0B', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)',
             },
             {
-              icon: '🔒',
-              title: 'Sin tarjeta de crédito',
-              desc: 'Crea tu cuenta gratis en menos de 1 minuto. Solo necesitas tu nombre y correo electrónico.'
+              icon: '🔒', title: 'Sin tarjeta de crédito',
+              desc: 'Crea tu cuenta gratis en menos de 1 minuto. Solo necesitas tu nombre y correo electrónico.',
+              color: '#06B6D4', bg: 'rgba(6,182,212,0.1)', border: 'rgba(6,182,212,0.2)',
             },
           ].map((f, i) => (
             <Reveal key={f.title} delay={i * 110}>
               <div style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: '1px solid var(--color-border)',
+                borderLeft: `3px solid ${f.color}`,
                 borderRadius: 16, padding: '28px 24px',
-                display: 'flex', gap: 16, alignItems: 'flex-start',
+                display: 'flex', gap: 18, alignItems: 'flex-start',
                 height: '100%',
+                transition: 'border-color 0.2s, background 0.2s',
               }}>
                 <div style={{
-                  width: 44, height: 44, flexShrink: 0, borderRadius: 12,
-                  background: 'rgba(94,106,210,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                  width: 52, height: 52, flexShrink: 0, borderRadius: 14,
+                  background: f.bg, border: `1px solid ${f.border}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
                 }}>
                   {f.icon}
                 </div>

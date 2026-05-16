@@ -234,16 +234,23 @@ export default function GarajeTab() {
               {[1, 2].map(i => <div key={i} className="skeleton" style={{ height: 80, flex: 1, borderRadius: 14 }} />)}
             </div>
           ) : vehiculos.length === 0 ? (
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px', textAlign: 'center' }}>
-              <Car size={32} color="rgba(255,255,255,0.15)" style={{ marginBottom: 10 }} />
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-muted)', marginBottom: 4 }}>Sin vehículos</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginBottom: 14 }}>Agrega tu vehículo para registrar tus cargas</div>
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-60%)', width: 160, height: 160, borderRadius: '50%', background: 'radial-gradient(circle, rgba(94,106,210,0.12) 0%, transparent 70%)', filter: 'blur(24px)', pointerEvents: 'none' }} />
+              <div style={{ width: 72, height: 72, borderRadius: 20, background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', position: 'relative' }}>
+                <span style={{ fontSize: 36 }}>🚗</span>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 8 }}>Tu garaje está vacío</div>
+              <div style={{ fontSize: 12, color: 'var(--color-muted)', lineHeight: 1.65, marginBottom: 20 }}>
+                Agrega tu vehículo para registrar cargas y ver cuánto gastas en gasolina cada mes.
+              </div>
               <button onClick={() => setShowAdd(true)} className="pressable" style={{
-                background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.3)',
-                color: '#818CF8', borderRadius: 10, padding: '9px 18px',
-                fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-body)',
+                background: '#5E6AD2', border: 'none',
+                color: 'white', borderRadius: 12, padding: '11px 22px',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-body)',
+                boxShadow: '0 4px 20px rgba(94,106,210,0.35)',
+                display: 'inline-flex', alignItems: 'center', gap: 7,
               }}>
-                Agregar vehículo
+                <Plus size={14} /> Agregar mi vehículo
               </button>
             </div>
           ) : (
@@ -292,10 +299,12 @@ export default function GarajeTab() {
           {loadingC ? (
             [1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 68, borderRadius: 14, marginBottom: 8 }} />)
           ) : filteredCargas.length === 0 ? (
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 14, padding: '24px', textAlign: 'center' }}>
-              <Fuel size={24} color="rgba(255,255,255,0.15)" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>Sin cargas registradas</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>Registra tu primera carga desde el mapa</div>
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: 16, padding: '28px 20px', textAlign: 'center' }}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                <span style={{ fontSize: 26 }}>⛽</span>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-muted)', marginBottom: 6 }}>Sin cargas registradas</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', lineHeight: 1.6 }}>Toca "Cómo llegar" en cualquier gasolinera del mapa para registrar tu primera carga.</div>
             </div>
           ) : filteredCargas.map((carga, i) => {
             const c = COMBUST_COLORS[carga.combustible] || COMBUST_COLORS.magna

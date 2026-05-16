@@ -360,7 +360,7 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: `${action.color}15`, border: `1px solid ${action.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={16} color={action.color} />
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{action.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'white', whiteSpace: 'nowrap' }}>{action.label}</span>
                   <ArrowRight size={13} color="var(--color-muted)" style={{ marginLeft: 'auto' }} />
                 </button>
               )

@@ -151,7 +151,7 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
       {/* Map */}
       <MapContainer
         center={defaultCenter}
-        zoom={13}
+        zoom={11}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
         ref={mapRef}
