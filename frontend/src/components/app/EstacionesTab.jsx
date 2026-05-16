@@ -63,6 +63,7 @@ const BRANDS = [
   { test: t => t.includes('MOBIL'),                              label: 'Mobil',      color: '#B91C1C' },
   { test: t => t.includes('BUEN PRECIO'),                        label: 'Buen Precio',color: '#C2410C' },
   { test: t => t.includes('TOTALENERGIES')||t.includes('TOTAL ENERGIES'), label: 'Total', color: '#CC0000' },
+  { test: t => t.includes('PEMEX') || t.includes('ESTACION DE SERVICIO') || t.includes('ES DE') || t.includes('SERVICIO'), label: 'PEMEX', color: '#22C55E' },
 ]
 
 function detectMarca(s) {
@@ -70,11 +71,11 @@ function detectMarca(s) {
   for (const b of BRANDS) {
     if (b.test(text)) return b.label
   }
-  return 'PEMEX'
+  return 'Otros'
 }
 
 function brandColor(label) {
-  return BRANDS.find(b => b.label === label)?.color ?? '#F59E0B'
+  return BRANDS.find(b => b.label === label)?.color ?? '#8A8F98'
 }
 
 function distanceKm(lat1, lng1, lat2, lng2) {
@@ -312,7 +313,6 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
             {['Todas', ...availableBrands].map(brand => {
               const active = marcaFilter === brand
               const color = brand === 'Todas' ? '#8A8F98' : brandColor(brand)
-              const isPemex = brand === 'PEMEX'
               return (
                 <button
                   key={brand}
@@ -329,7 +329,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  {!isPemex && brand !== 'Todas' && (
+                  {brand !== 'Todas' && (
                     <span style={{
                       width: 6, height: 6, borderRadius: '50%',
                       background: active ? color : '#8A8F98',
@@ -443,9 +443,9 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                     return (
                       <span style={{
                         fontSize: 9, fontWeight: 800, letterSpacing: 0.3,
-                        color: marca === 'PEMEX' ? '#22C55E' : bc,
-                        background: marca === 'PEMEX' ? 'rgba(34,197,94,0.1)' : `${bc}15`,
-                        border: `1px solid ${marca === 'PEMEX' ? 'rgba(34,197,94,0.2)' : `${bc}30`}`,
+                        color: bc,
+                        background: `${bc}15`,
+                        border: `1px solid ${bc}30`,
                         borderRadius: 4, padding: '1px 5px', flexShrink: 0,
                       }}>
                         {marca}
