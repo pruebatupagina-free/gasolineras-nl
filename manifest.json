@@ -1,0 +1,36 @@
+{
+  "name": "GasMap — Precios de Gasolina",
+  "short_name": "GasMap",
+  "description": "El precio real de la gasolina en México. Encuentra la gasolinera más barata cerca de ti.",
+  "start_url": "/gasolineras-nl/",
+  "scope": "/gasolineras-nl/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0F172A",
+  "background_color": "#0F172A",
+  "lang": "es-MX",
+  "categories": ["navigation", "utilities"],
+  "icons": [
+    {
+      "src": "/gasolineras-nl/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/gasolineras-nl/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/gasolineras-nl/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "GasMap — Estaciones cercanas"
+    }
+  ]
+}
