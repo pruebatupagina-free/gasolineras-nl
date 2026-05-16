@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { LogOut, User, Shield, Info, ChevronRight, Bell, Moon, Zap, Star } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { LogOut, User, Shield, Info, ChevronRight, Bell, Zap, Star, Download } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -9,6 +9,30 @@ export default function PerfilTab() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const deferredPrompt = useRef(null)
+  const [canInstall, setCanInstall] = useState(false)
+
+  useEffect(() => {
+    const handler = e => {
+      e.preventDefault()
+      deferredPrompt.current = e
+      setCanInstall(true)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    // Already installed
+    window.addEventListener('appinstalled', () => setCanInstall(false))
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  const handleInstall = async () => {
+    if (!deferredPrompt.current) return
+    deferredPrompt.current.prompt()
+    const { outcome } = await deferredPrompt.current.userChoice
+    if (outcome === 'accepted') {
+      setCanInstall(false)
+      deferredPrompt.current = null
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -19,21 +43,26 @@ export default function PerfilTab() {
   const initials = nombre.slice(0, 2).toUpperCase()
   const email = user?.email || ''
 
+  const appItems = [
+    { icon: Zap, label: 'Actualización de datos', sub: 'CRE · 18:30 MTY diario', color: '#818CF8', onClick: null },
+    { icon: Info, label: 'Versión', sub: `GasMap v${APP_VERSION}`, color: 'var(--color-muted)', onClick: null },
+  ]
+  if (canInstall) {
+    appItems.unshift({ icon: Download, label: 'Instalar GasMap', sub: 'Agregar a la pantalla de inicio', color: '#22C55E', onClick: handleInstall })
+  }
+
   const menuItems = [
     {
       group: 'Cuenta',
       items: [
-        { icon: User, label: 'Mi perfil', sub: email, color: '#5E6AD2' },
-        { icon: Shield, label: 'Seguridad', sub: 'Contraseña y acceso', color: '#22C55E' },
-        { icon: Bell, label: 'Notificaciones', sub: 'Alertas de precios', color: '#F59E0B' },
+        { icon: User, label: 'Mi perfil', sub: email, color: '#5E6AD2', onClick: null },
+        { icon: Shield, label: 'Seguridad', sub: 'Contraseña y acceso', color: '#22C55E', onClick: null },
+        { icon: Bell, label: 'Notificaciones', sub: 'Alertas de precios', color: '#F59E0B', onClick: null },
       ],
     },
     {
       group: 'Aplicación',
-      items: [
-        { icon: Zap, label: 'Actualización de datos', sub: 'CRE · 18:30 MTY diario', color: '#818CF8' },
-        { icon: Info, label: 'Versión', sub: `GasMap v${APP_VERSION}`, color: 'var(--color-muted)' },
-      ],
+      items: appItems,
     },
   ]
 
@@ -96,15 +125,16 @@ export default function PerfilTab() {
               {group}
             </div>
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden' }}>
-              {items.map(({ icon: Icon, label, sub, color }, i) => (
+              {items.map(({ icon: Icon, label, sub, color, onClick }, i) => (
                 <div
                   key={label}
                   className="pressable"
+                  onClick={onClick || undefined}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 13,
                     padding: '14px 16px',
                     borderBottom: i < items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                    cursor: 'pointer',
+                    cursor: onClick ? 'pointer' : 'default',
                   }}
                 >
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: color + '18', border: `1px solid ${color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
