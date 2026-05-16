@@ -45,112 +45,112 @@ function AppMockup({ stats }) {
 
       {/* Glow behind phone */}
       <div style={{
-        position: 'absolute', width: 380, height: 380, borderRadius: '50%',
+        position: 'absolute', width: 440, height: 440, borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(94,106,210,0.22) 0%, transparent 70%)',
         top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        filter: 'blur(70px)', pointerEvents: 'none',
+        filter: 'blur(80px)', pointerEvents: 'none',
       }} />
 
       {/* Phone frame */}
       <div style={{
-        position: 'relative', width: 256,
-        borderRadius: 44, background: '#080809',
+        position: 'relative', width: 290,
+        borderRadius: 50, background: '#080809',
         border: '1.5px solid rgba(255,255,255,0.1)',
-        boxShadow: '0 40px 80px rgba(0,0,0,0.65), inset 0 0 0 1px rgba(255,255,255,0.04)',
+        boxShadow: '0 48px 96px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.04)',
         overflow: 'hidden',
       }}>
 
         {/* Dynamic island */}
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, marginBottom: 4 }}>
-          <div style={{ width: 90, height: 26, background: '#000', borderRadius: 13 }} />
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 16, marginBottom: 8 }}>
+          <div style={{ width: 100, height: 28, background: '#000', borderRadius: 14 }} />
         </div>
 
         {/* App content */}
-        <div style={{ padding: '4px 14px 0' }}>
+        <div style={{ padding: '8px 18px 0' }}>
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 1 }}>Buenos días,</div>
-              <div style={{ fontFamily: 'var(--font-heading)', fontSize: 14, fontWeight: 800, color: 'white', letterSpacing: '-0.3px' }}>Eduardo 👋</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 2 }}>Buenos días,</div>
+              <div style={{ fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 800, color: 'white', letterSpacing: '-0.4px' }}>Eduardo 👋</div>
             </div>
             <div style={{
-              background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.25)',
-              borderRadius: 8, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 4,
+              background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.3)',
+              borderRadius: 10, padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 5,
             }}>
-              <span style={{ fontSize: 7.5, color: '#A5B4FC', fontWeight: 700 }}>⏱ 5h 20m</span>
+              <span style={{ fontSize: 9, color: '#A5B4FC', fontWeight: 700 }}>⏱ 5h 20m</span>
             </div>
           </div>
 
           {/* Prices label */}
-          <div style={{ fontSize: 7.5, fontWeight: 700, color: '#5E6AD2', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#5E6AD2', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
             Precios hoy — Magna
           </div>
 
           {/* 3 stat cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 5, marginBottom: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 7, marginBottom: 16 }}>
             {[
               { label: 'MÍNIMO', value: minP, color: '#22C55E', bg: 'rgba(34,197,94,0.1)' },
               { label: 'PROMEDIO', value: avgP, color: '#5E6AD2', bg: 'rgba(94,106,210,0.1)' },
               { label: 'MÁXIMO', value: maxP, color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
             ].map(c => (
-              <div key={c.label} style={{ background: c.bg, borderRadius: 8, padding: '6px 4px', textAlign: 'center' }}>
-                <div style={{ fontSize: 6, color: '#6B7280', fontWeight: 700, letterSpacing: 0.3, marginBottom: 3, textTransform: 'uppercase' }}>{c.label}</div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: c.color, fontFamily: 'var(--font-heading)' }}>{c.value}</div>
+              <div key={c.label} style={{ background: c.bg, borderRadius: 10, padding: '10px 6px', textAlign: 'center' }}>
+                <div style={{ fontSize: 7.5, color: '#6B7280', fontWeight: 700, letterSpacing: 0.4, marginBottom: 5, textTransform: 'uppercase' }}>{c.label}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: c.color, fontFamily: 'var(--font-heading)' }}>{c.value}</div>
               </div>
             ))}
           </div>
 
           {/* Best station label */}
-          <div style={{ fontSize: 7.5, fontWeight: 700, color: '#5E6AD2', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 6 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#5E6AD2', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
             Precio más bajo
           </div>
 
           {/* Station card */}
           <div style={{
             background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)',
-            borderLeft: '2.5px solid #22C55E', borderRadius: 9, padding: '8px 9px',
-            display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10,
+            borderLeft: '3px solid #22C55E', borderRadius: 12, padding: '12px 12px',
+            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
           }}>
             <div style={{
-              width: 26, height: 26, borderRadius: 7, background: 'rgba(34,197,94,0.12)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, flexShrink: 0,
+              width: 34, height: 34, borderRadius: 9, background: 'rgba(34,197,94,0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0,
             }}>⛽</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 7.5, color: '#22C55E', fontWeight: 700, marginBottom: 1, textTransform: 'uppercase' }}>MÁS BARATA · 2.3 km</div>
-              <div style={{ fontSize: 10.5, color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>PEMEX Revolución</div>
+              <div style={{ fontSize: 9, color: '#22C55E', fontWeight: 700, marginBottom: 2, textTransform: 'uppercase' }}>MÁS BARATA · 2.3 km</div>
+              <div style={{ fontSize: 12, color: 'white', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>PEMEX Revolución</div>
             </div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#22C55E', fontFamily: 'var(--font-heading)', flexShrink: 0 }}>{minP}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#22C55E', fontFamily: 'var(--font-heading)', flexShrink: 0 }}>{minP}</div>
           </div>
 
           {/* Mini map */}
-          <div style={{ borderRadius: 10, overflow: 'hidden', height: 82, position: 'relative', background: '#0A0E16' }}>
-            <svg width="100%" height="82" style={{ position: 'absolute', inset: 0 }}>
-              <line x1="0" y1="41" x2="256" y2="41" stroke="#1A2030" strokeWidth="8" />
-              <line x1="120" y1="0" x2="120" y2="82" stroke="#1A2030" strokeWidth="8" />
-              <line x1="0" y1="18" x2="256" y2="68" stroke="#1A2030" strokeWidth="5" />
-              <line x1="0" y1="68" x2="200" y2="12" stroke="#1A2030" strokeWidth="5" />
+          <div style={{ borderRadius: 12, overflow: 'hidden', height: 128, position: 'relative', background: '#0A0E16' }}>
+            <svg width="100%" height="128" style={{ position: 'absolute', inset: 0 }}>
+              <line x1="0" y1="64" x2="290" y2="64" stroke="#1A2030" strokeWidth="10" />
+              <line x1="145" y1="0" x2="145" y2="128" stroke="#1A2030" strokeWidth="10" />
+              <line x1="0" y1="24" x2="290" y2="100" stroke="#1A2030" strokeWidth="6" />
+              <line x1="0" y1="104" x2="240" y2="14" stroke="#1A2030" strokeWidth="6" />
             </svg>
             {[
-              { left: '18%', top: '40%', price: minP, color: '#22C55E', active: true },
-              { left: '59%', top: '60%', price: avgP, color: '#F59E0B', active: false },
-              { left: '78%', top: '22%', price: maxP, color: '#EF4444', active: false },
+              { left: '17%', top: '42%', price: minP, color: '#22C55E', active: true },
+              { left: '60%', top: '62%', price: avgP, color: '#F59E0B', active: false },
+              { left: '80%', top: '24%', price: maxP, color: '#EF4444', active: false },
             ].map((pin, i) => (
               <div key={i} style={{
                 position: 'absolute', left: pin.left, top: pin.top,
                 transform: 'translate(-50%, -50%)',
                 background: pin.active ? pin.color : `${pin.color}CC`,
-                borderRadius: 5, padding: '2px 5px',
-                fontSize: 8, fontWeight: 800, color: 'white',
-                boxShadow: pin.active ? `0 2px 10px ${pin.color}70` : 'none',
+                borderRadius: 6, padding: '3px 7px',
+                fontSize: 9.5, fontWeight: 800, color: 'white',
+                boxShadow: pin.active ? `0 3px 12px ${pin.color}70` : 'none',
                 border: pin.active ? '1.5px solid white' : 'none',
               }}>{pin.price}</div>
             ))}
             {/* User dot */}
             <div style={{
-              position: 'absolute', left: '42%', top: '50%',
-              width: 9, height: 9, borderRadius: '50%',
-              background: '#5E6AD2', boxShadow: '0 0 0 4px rgba(94,106,210,0.25)',
+              position: 'absolute', left: '43%', top: '52%',
+              width: 11, height: 11, borderRadius: '50%',
+              background: '#5E6AD2', boxShadow: '0 0 0 5px rgba(94,106,210,0.25)',
               transform: 'translate(-50%, -50%)',
             }} />
           </div>
@@ -158,10 +158,10 @@ function AppMockup({ stats }) {
 
         {/* Bottom nav */}
         <div style={{
-          height: 44, background: 'rgba(8,8,9,0.98)',
+          height: 52, background: 'rgba(8,8,9,0.98)',
           borderTop: '1px solid rgba(255,255,255,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-          paddingBottom: 4,
+          paddingBottom: 6, marginTop: 10,
         }}>
           {[
             { label: 'Inicio', active: true },
@@ -170,9 +170,9 @@ function AppMockup({ stats }) {
             { label: 'Garaje', active: false },
             { label: 'Perfil', active: false },
           ].map(tab => (
-            <div key={tab.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, opacity: tab.active ? 1 : 0.3 }}>
-              <div style={{ width: 16, height: 3, borderRadius: 2, background: tab.active ? '#5E6AD2' : 'transparent', marginBottom: 1 }} />
-              <span style={{ fontSize: 6, color: tab.active ? '#5E6AD2' : '#6B7280', fontWeight: tab.active ? 700 : 400, letterSpacing: 0.3 }}>{tab.label}</span>
+            <div key={tab.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, opacity: tab.active ? 1 : 0.3 }}>
+              <div style={{ width: 18, height: 3, borderRadius: 2, background: tab.active ? '#5E6AD2' : 'transparent', marginBottom: 2 }} />
+              <span style={{ fontSize: 7.5, color: tab.active ? '#5E6AD2' : '#6B7280', fontWeight: tab.active ? 700 : 400, letterSpacing: 0.3 }}>{tab.label}</span>
             </div>
           ))}
         </div>
@@ -180,26 +180,26 @@ function AppMockup({ stats }) {
 
       {/* Badge: CRE en vivo */}
       <div style={{
-        position: 'absolute', bottom: 58, right: 4,
+        position: 'absolute', bottom: 72, right: -8,
         background: 'rgba(8,8,9,0.96)', border: '1px solid rgba(34,197,94,0.35)',
-        borderRadius: 20, padding: '7px 13px',
-        display: 'flex', alignItems: 'center', gap: 6,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+        borderRadius: 20, padding: '8px 14px',
+        display: 'flex', alignItems: 'center', gap: 7,
+        boxShadow: '0 8px 28px rgba(0,0,0,0.5)',
       }}>
-        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E80' }} />
-        <span style={{ fontSize: 10, fontWeight: 700, color: '#22C55E', letterSpacing: 0.5 }}>CRE · EN VIVO</span>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 8px #22C55E80' }} />
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#22C55E', letterSpacing: 0.5 }}>CRE · EN VIVO</span>
       </div>
 
       {/* Badge: ahorro */}
       <div style={{
-        position: 'absolute', top: 72, left: 4,
+        position: 'absolute', top: 88, left: -8,
         background: 'rgba(8,8,9,0.96)', border: '1px solid rgba(94,106,210,0.35)',
-        borderRadius: 20, padding: '7px 13px',
-        display: 'flex', alignItems: 'center', gap: 6,
-        boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+        borderRadius: 20, padding: '8px 14px',
+        display: 'flex', alignItems: 'center', gap: 7,
+        boxShadow: '0 8px 28px rgba(0,0,0,0.5)',
       }}>
-        <span style={{ fontSize: 12 }}>💰</span>
-        <span style={{ fontSize: 10, fontWeight: 700, color: '#A5B4FC', letterSpacing: 0.3 }}>Ahorra hasta $640/mes</span>
+        <span style={{ fontSize: 14 }}>💰</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#A5B4FC', letterSpacing: 0.3 }}>Ahorra hasta $640/mes</span>
       </div>
     </div>
   )
