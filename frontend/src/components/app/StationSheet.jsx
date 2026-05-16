@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
-import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell } from 'lucide-react'
+import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell, Share2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import ReportModal from './ReportModal'
 import AlertaModal from './AlertaModal'
 import client from '../../api/client'
@@ -133,6 +134,20 @@ export default function StationSheet({ station, combustible, userLocation, onClo
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose])
+
+  async function handleShare() {
+    const label = COMBUST.find(c => c.key === combustible)?.label || combustible
+    const precio = station.precios?.[combustible]
+    const precioStr = precio ? `$${precio.toFixed(2)}/L` : ''
+    const text = `${station.nombre} · ${label} ${precioStr} 📍 ${station.municipio ?? ''}\nEncuéntrala más barata con GasMap 👇`
+    const url = 'https://pruebatupagina-free.github.io/gasolineras-nl/'
+    if (navigator.share) {
+      await navigator.share({ title: 'GasMap — Precio de gasolina', text, url }).catch(() => {})
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${url}`).catch(() => {})
+      toast.success('¡Copiado al portapapeles!')
+    }
+  }
 
   if (!station) return null
 
@@ -307,6 +322,18 @@ export default function StationSheet({ station, combustible, userLocation, onClo
             >
               <Bell size={15} />
               Alerta
+            </button>
+            <button
+              onClick={handleShare}
+              className="pressable"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)',
+                color: '#22C55E', borderRadius: 14, padding: '14px 14px',
+                fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
+              }}
+            >
+              <Share2 size={15} />
             </button>
             <button
               onClick={() => setReportCombust(combustible)}
