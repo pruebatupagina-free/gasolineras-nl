@@ -6,6 +6,7 @@ const ACCENT = '#5E6AD2'
 const ACCENT_GLOW = 'rgba(94,106,210,0.28)'
 const API_BASE = import.meta.env.VITE_API_URL || 'https://gasonl-backend-production.up.railway.app/api'
 const APP_URL = 'https://pruebatupagina-free.github.io/gasolineras-nl/'
+const GRAIN_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E")`
 
 const FAQ_ITEMS = [
   {
@@ -291,6 +292,35 @@ export default function LandingPage() {
 
   return (
     <div style={{ fontFamily: 'var(--font-body)', background: 'var(--color-bg)', color: 'var(--color-fg)', minHeight: '100dvh' }}>
+
+      {/* Grain animation keyframes */}
+      <style>{`
+        @keyframes grain {
+          0%,100% { transform:translate(0,0) }
+          10% { transform:translate(-1%,-2%) }
+          20% { transform:translate(2%,1%) }
+          30% { transform:translate(-1%,3%) }
+          40% { transform:translate(1%,-1%) }
+          50% { transform:translate(-2%,2%) }
+          60% { transform:translate(3%,-2%) }
+          70% { transform:translate(-1%,1%) }
+          80% { transform:translate(1%,2%) }
+          90% { transform:translate(-2%,-1%) }
+        }
+      `}</style>
+
+      {/* Grain/noise texture overlay */}
+      <div style={{
+        position: 'fixed', inset: '-20%', zIndex: 45,
+        pointerEvents: 'none',
+        opacity: 0.055,
+        mixBlendMode: 'overlay',
+        backgroundImage: GRAIN_BG,
+        backgroundRepeat: 'repeat',
+        backgroundSize: '250px 250px',
+        animation: 'grain 8s steps(10) infinite',
+        willChange: 'transform',
+      }} />
 
       {/* ── NAVBAR ── */}
       <nav style={{
