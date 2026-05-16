@@ -1,4 +1,4 @@
-import { useState, useEffect, Component } from 'react'
+import { useState, useEffect, Component, lazy, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
@@ -9,13 +9,22 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 import BottomNav from '../../components/app/BottomNav'
 import StationSheet from '../../components/app/StationSheet'
 import HomeTab from '../../components/app/HomeTab'
-import EstacionesTab from '../../components/app/EstacionesTab'
 import MapTab from '../../components/app/MapTab'
-import GarajeTab from '../../components/app/GarajeTab'
-import HistorialTab from '../../components/app/HistorialTab'
-import PerfilTab from '../../components/app/PerfilTab'
 import OnboardingModal from '../../components/app/OnboardingModal'
 import NotificacionesPanel from '../../components/app/NotificacionesPanel'
+
+const EstacionesTab = lazy(() => import('../../components/app/EstacionesTab'))
+const GarajeTab    = lazy(() => import('../../components/app/GarajeTab'))
+const HistorialTab = lazy(() => import('../../components/app/HistorialTab'))
+const PerfilTab    = lazy(() => import('../../components/app/PerfilTab'))
+
+function TabLoader() {
+  return (
+    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg)' }}>
+      <div style={{ width: 24, height: 24, borderRadius: '50%', border: '2px solid rgba(94,106,210,0.2)', borderTopColor: '#5E6AD2', animation: 'spin 0.8s linear infinite' }} />
+    </div>
+  )
+}
 
 class MapErrorBoundary extends Component {
   state = { hasError: false }
@@ -138,15 +147,17 @@ function MapPageInner() {
       />
     ),
     estaciones: (
-      <EstacionesTab
-        estaciones={estaciones}
-        combustible={combustible}
-        onCombustibleChange={setCombustible}
-        userLocation={userLocation}
-        onSelectStation={s => setSelectedStation(s)}
-        estadoFilter={estadoFilter}
-        onEstadoChange={setEstadoFilter}
-      />
+      <Suspense fallback={<TabLoader />}>
+        <EstacionesTab
+          estaciones={estaciones}
+          combustible={combustible}
+          onCombustibleChange={setCombustible}
+          userLocation={userLocation}
+          onSelectStation={s => setSelectedStation(s)}
+          estadoFilter={estadoFilter}
+          onEstadoChange={setEstadoFilter}
+        />
+      </Suspense>
     ),
     mapa: (
       <MapTab
@@ -161,9 +172,9 @@ function MapPageInner() {
         onEstadoChange={setEstadoFilter}
       />
     ),
-    garaje: <GarajeTab />,
-    historial: <HistorialTab />,
-    perfil: <PerfilTab />,
+    garaje:   <Suspense fallback={<TabLoader />}><GarajeTab /></Suspense>,
+    historial: <Suspense fallback={<TabLoader />}><HistorialTab /></Suspense>,
+    perfil:   <Suspense fallback={<TabLoader />}><PerfilTab /></Suspense>,
   }
 
   // ── Desktop layout ─────────────────────────────────────────────────────────
