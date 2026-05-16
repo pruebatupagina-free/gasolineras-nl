@@ -22,6 +22,30 @@ const COMBUST_COLORS = {
   diesel:  { color: '#F59E0B', label: 'Diésel' },
 }
 
+const BRANDS = [
+  { test: t => t.includes('OXXO'),                               label: 'OXXO Gas',   color: '#DC2626' },
+  { test: t => t.includes('HIDROSINA'),                          label: 'Hidrosina',  color: '#1D4ED8' },
+  { test: t => t.includes('G500'),                               label: 'G500',       color: '#EA580C' },
+  { test: t => t.includes('ORSAN'),                              label: 'Orsan',      color: '#16A34A' },
+  { test: t => t.includes('SHELL'),                              label: 'Shell',      color: '#CA8A04' },
+  { test: t => /\bBP\b/.test(t),                                 label: 'BP',         color: '#15803D' },
+  { test: t => t.includes('MOBIL'),                              label: 'Mobil',      color: '#B91C1C' },
+  { test: t => t.includes('BUEN PRECIO'),                        label: 'Buen Precio',color: '#C2410C' },
+  { test: t => t.includes('TOTALENERGIES')||t.includes('TOTAL ENERGIES'), label: 'Total', color: '#CC0000' },
+]
+
+function detectMarca(s) {
+  const text = `${s.razon_social || ''} ${s.nombre || ''}`.toUpperCase()
+  for (const b of BRANDS) {
+    if (b.test(text)) return b.label
+  }
+  return 'PEMEX'
+}
+
+function brandColor(label) {
+  return BRANDS.find(b => b.label === label)?.color ?? '#F59E0B'
+}
+
 function distanceKm(lat1, lng1, lat2, lng2) {
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -36,7 +60,8 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   const [showMunicipios, setShowMunicipios] = useState(false)
   const [compareIds, setCompareIds] = useState([])
   const [showComparador, setShowComparador] = useState(false)
-  const [sortBy, setSortBy] = useState('precio') // 'precio' | 'rating'
+  const [sortBy, setSortBy] = useState('precio')
+  const [marcaFilter, setMarcaFilter] = useState('Todas')
   const [ratingsStats, setRatingsStats] = useState({})
   const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
 
@@ -55,9 +80,9 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
 
   const compareStations = estaciones.filter(s => compareIds.includes(s._id))
 
-  const filtered = useMemo(() => {
+  // Pre-filter: combustible + search + municipio (before brand filter)
+  const preFiltered = useMemo(() => {
     let list = estaciones.filter(s => s.precios?.[combustible])
-
     if (query.trim()) {
       const q = query.toLowerCase()
       list = list.filter(s =>
@@ -66,10 +91,29 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
         s.municipio?.toLowerCase().includes(q)
       )
     }
-
     if (municipio !== 'Todos') {
       list = list.filter(s => s.municipio?.toLowerCase().includes(municipio.toLowerCase()))
     }
+    return list
+  }, [estaciones, query, municipio, combustible])
+
+  // Unique brands available in current pre-filtered list
+  const availableBrands = useMemo(() => {
+    const set = new Set(preFiltered.map(detectMarca))
+    return [...set].sort()
+  }, [preFiltered])
+
+  // Reset brand filter if it disappears from available brands
+  useEffect(() => {
+    if (marcaFilter !== 'Todas' && !availableBrands.includes(marcaFilter)) {
+      setMarcaFilter('Todas')
+    }
+  }, [availableBrands, marcaFilter])
+
+  const filtered = useMemo(() => {
+    let list = marcaFilter === 'Todas'
+      ? preFiltered
+      : preFiltered.filter(s => detectMarca(s) === marcaFilter)
 
     if (sortBy === 'rating') {
       return list.sort((a, b) => {
@@ -79,7 +123,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
       })
     }
     return list.sort((a, b) => (a.precios[combustible] || 99) - (b.precios[combustible] || 99))
-  }, [estaciones, query, municipio, combustible, sortBy, ratingsStats])
+  }, [preFiltered, marcaFilter, combustible, sortBy, ratingsStats])
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64, position: 'relative' }}>
@@ -171,12 +215,56 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
             })}
           </div>
         </div>
+
+        {/* Brand filter pills — only when 2+ distinct brands exist */}
+        {availableBrands.length >= 2 && (
+          <div style={{
+            display: 'flex', gap: 6, overflowX: 'auto', marginTop: 10,
+            paddingBottom: 2,
+            scrollbarWidth: 'none',
+          }}>
+            {['Todas', ...availableBrands].map(brand => {
+              const active = marcaFilter === brand
+              const color = brand === 'Todas' ? '#8A8F98' : brandColor(brand)
+              const isPemex = brand === 'PEMEX'
+              return (
+                <button
+                  key={brand}
+                  onClick={() => setMarcaFilter(brand)}
+                  style={{
+                    flexShrink: 0, padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                    background: active
+                      ? (brand === 'Todas' ? 'rgba(255,255,255,0.12)' : `${color}22`)
+                      : 'rgba(255,255,255,0.05)',
+                    color: active ? (brand === 'Todas' ? 'white' : color) : '#8A8F98',
+                    outline: active && brand !== 'Todas' ? `1px solid ${color}44` : 'none',
+                    fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
+                    transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  {!isPemex && brand !== 'Todas' && (
+                    <span style={{
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: active ? color : '#8A8F98',
+                      flexShrink: 0, transition: 'background 0.15s',
+                    }} />
+                  )}
+                  {brand}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Sort toggle + count */}
       <div style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <span style={{ fontSize: 11, color: '#8A8F98', fontWeight: 600 }}>
-          {filtered.length} estaciones {municipio !== 'Todos' ? `en ${municipio}` : ''}{query ? ` · "${query}"` : ''}
+          {filtered.length} estaciones
+          {municipio !== 'Todos' ? ` · ${municipio}` : ''}
+          {marcaFilter !== 'Todas' ? ` · ${marcaFilter}` : ''}
+          {query ? ` · "${query}"` : ''}
         </span>
         <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 2, gap: 2 }}>
           {[{ key: 'precio', label: 'Precio' }, { key: 'rating', label: '⭐ Rating' }].map(s => (
@@ -197,7 +285,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
           <div style={{ padding: 40, textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <div style={{ color: '#8A8F98', fontSize: 14 }}>No se encontraron estaciones</div>
-            <button onClick={() => { setQuery(''); setMunicipio('Todos') }} style={{
+            <button onClick={() => { setQuery(''); setMunicipio('Todos'); setMarcaFilter('Todas') }} style={{
               marginTop: 12, background: 'none', border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 8, padding: '8px 16px', color: '#8A8F98', cursor: 'pointer', fontSize: 13,
               fontFamily: 'var(--font-body)',
@@ -245,6 +333,22 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                   {truncateName(s.nombre)}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, overflow: 'hidden' }}>
+                  {/* Brand badge */}
+                  {(() => {
+                    const marca = detectMarca(s)
+                    const bc = brandColor(marca)
+                    return (
+                      <span style={{
+                        fontSize: 9, fontWeight: 800, letterSpacing: 0.3,
+                        color: marca === 'PEMEX' ? '#22C55E' : bc,
+                        background: marca === 'PEMEX' ? 'rgba(34,197,94,0.1)' : `${bc}15`,
+                        border: `1px solid ${marca === 'PEMEX' ? 'rgba(34,197,94,0.2)' : `${bc}30`}`,
+                        borderRadius: 4, padding: '1px 5px', flexShrink: 0,
+                      }}>
+                        {marca}
+                      </span>
+                    )
+                  })()}
                   {s.municipio && (
                     <span style={{ fontSize: 11, color: '#8A8F98', display: 'flex', alignItems: 'center', gap: 2, minWidth: 0, overflow: 'hidden' }}>
                       <MapPin size={9} style={{ flexShrink: 0 }} />
