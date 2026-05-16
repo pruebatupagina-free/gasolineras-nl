@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Search, MapPin, ChevronRight, Fuel, SlidersHorizontal } from 'lucide-react'
+import { Search, MapPin, ChevronRight, Fuel, SlidersHorizontal, GitCompare, Plus, Check } from 'lucide-react'
+import ComparadorModal from './ComparadorModal'
 
 function truncateName(name, max = 24) {
   if (!name || name.length <= max) return name
@@ -32,7 +33,20 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   const [query, setQuery] = useState('')
   const [municipio, setMunicipio] = useState('Todos')
   const [showMunicipios, setShowMunicipios] = useState(false)
+  const [compareIds, setCompareIds] = useState([])
+  const [showComparador, setShowComparador] = useState(false)
   const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
+
+  function toggleCompare(e, station) {
+    e.stopPropagation()
+    setCompareIds(prev => {
+      if (prev.includes(station._id)) return prev.filter(id => id !== station._id)
+      if (prev.length >= 3) return prev
+      return [...prev, station._id]
+    })
+  }
+
+  const compareStations = estaciones.filter(s => compareIds.includes(s._id))
 
   const filtered = useMemo(() => {
     let list = estaciones.filter(s => s.precios?.[combustible])
@@ -54,7 +68,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   }, [estaciones, query, municipio, combustible])
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64 }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64, position: 'relative' }}>
 
       {/* Header */}
       <div style={{ padding: '16px 20px 12px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
@@ -231,11 +245,95 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                 )}
               </div>
 
-              <ChevronRight size={14} color="rgba(255,255,255,0.2)" />
+              {/* Compare toggle button */}
+              {(() => {
+                const isSelected = compareIds.includes(s._id)
+                const isFull = compareIds.length >= 3 && !isSelected
+                return (
+                  <button
+                    onClick={e => toggleCompare(e, s)}
+                    disabled={isFull}
+                    style={{
+                      width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                      border: isSelected ? 'none' : '1.5px solid rgba(255,255,255,0.15)',
+                      background: isSelected ? '#5E6AD2' : 'transparent',
+                      cursor: isFull ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      opacity: isFull ? 0.3 : 1,
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {isSelected
+                      ? <Check size={14} color="white" />
+                      : <Plus size={14} color="rgba(255,255,255,0.5)" />
+                    }
+                  </button>
+                )
+              })()}
             </div>
           )
         })}
       </div>
+
+      {/* Floating compare bar */}
+      {compareIds.length > 0 && (
+        <div style={{
+          position: 'absolute', bottom: 72, left: 16, right: 16,
+          background: 'linear-gradient(135deg, #1a1a2e, #16213e)',
+          border: '1px solid rgba(94,106,210,0.4)',
+          borderRadius: 16, padding: '12px 16px',
+          display: 'flex', alignItems: 'center', gap: 12,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(94,106,210,0.2)',
+          zIndex: 10,
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>
+              {compareIds.length === 1 ? '1 seleccionada' : `${compareIds.length} seleccionadas`}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--color-muted)' }}>
+              {compareIds.length < 2 ? 'Selecciona al menos 2 para comparar' : `Máx. 3 estaciones`}
+            </div>
+          </div>
+          <button
+            onClick={() => setCompareIds([])}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-muted)', fontSize: 12, fontFamily: 'var(--font-body)', padding: '4px 8px' }}
+          >
+            Limpiar
+          </button>
+          <button
+            onClick={() => setShowComparador(true)}
+            disabled={compareIds.length < 2}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: compareIds.length >= 2 ? 'linear-gradient(135deg, #5E6AD2, #4F5BC0)' : 'rgba(255,255,255,0.1)',
+              border: 'none', borderRadius: 12, padding: '10px 16px',
+              color: compareIds.length >= 2 ? 'white' : 'rgba(255,255,255,0.3)',
+              fontWeight: 700, fontSize: 13, fontFamily: 'var(--font-body)',
+              cursor: compareIds.length >= 2 ? 'pointer' : 'not-allowed',
+              transition: 'all 0.15s',
+            }}
+          >
+            <GitCompare size={14} />
+            Comparar
+          </button>
+        </div>
+      )}
+
+      {/* Comparador modal */}
+      {showComparador && compareStations.length >= 2 && (
+        <ComparadorModal
+          stations={compareStations}
+          userLocation={userLocation}
+          onClose={() => setShowComparador(false)}
+          onRemove={id => {
+            setCompareIds(prev => {
+              const next = prev.filter(i => i !== id)
+              if (next.length < 2) setShowComparador(false)
+              return next
+            })
+          }}
+        />
+      )}
     </div>
   )
 }
