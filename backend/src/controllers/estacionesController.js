@@ -41,15 +41,40 @@ exports.nearby = async (req, res, next) => {
   }
 }
 
-// GET /api/estaciones — todas por municipio
+// GET /api/estaciones — filtrado por estado y/o municipio
 exports.list = async (req, res, next) => {
   try {
-    const { municipio, combustible = 'magna' } = req.query
+    const { estado, municipio, combustible = 'magna' } = req.query
     const filter = { activa: true, [`precios.${combustible}`]: { $ne: null, $gte: 15 } }
+    if (estado) filter.estado = estado.toUpperCase()
     if (municipio) filter.municipio = municipio.toUpperCase()
 
-    const estaciones = await Estacion.find(filter).sort({ [`precios.${combustible}`]: 1 }).limit(100)
+    const limit = estado ? 500 : 200
+    const estaciones = await Estacion.find(filter).sort({ [`precios.${combustible}`]: 1 }).limit(limit)
     res.json({ total: estaciones.length, estaciones })
+  } catch (err) {
+    next(err)
+  }
+}
+
+// GET /api/estaciones/estados — lista de estados con datos
+exports.getEstados = async (req, res, next) => {
+  try {
+    const estados = await Estacion.distinct('estado', { activa: true, estado: { $ne: null } })
+    res.json({ estados: estados.sort() })
+  } catch (err) {
+    next(err)
+  }
+}
+
+// GET /api/estaciones/municipios?estado=JALISCO
+exports.getMunicipios = async (req, res, next) => {
+  try {
+    const { estado } = req.query
+    const filter = { activa: true, municipio: { $ne: null } }
+    if (estado) filter.estado = estado.toUpperCase()
+    const municipios = await Estacion.distinct('municipio', filter)
+    res.json({ municipios: municipios.sort() })
   } catch (err) {
     next(err)
   }

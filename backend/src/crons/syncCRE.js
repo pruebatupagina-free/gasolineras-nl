@@ -23,14 +23,15 @@ async function sincronizarPrecios() {
         update: {
           $set: {
             nombre: e.nombre,
-            municipio: e.municipio,
-            estado: e.estado,
             location: e.location,
             precios: e.precios,
             ultima_actualizacion: e.ultima_actualizacion,
             activa: true,
           },
-          $setOnInsert: { calle: null, colonia: null, razon_social: e.razon_social },
+          $setOnInsert: {
+            calle: null, colonia: null, razon_social: e.razon_social,
+            estado: e.estado, municipio: e.municipio,
+          },
         },
         upsert: true,
       },

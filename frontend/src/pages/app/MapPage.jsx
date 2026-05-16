@@ -64,6 +64,7 @@ function MapPageInner() {
 
   const [activeTab, setActiveTab] = useState('home')
   const [combustible, setCombustible] = useState('magna')
+  const [estadoFilter, setEstadoFilter] = useState('')
   const [selectedStation, setSelectedStation] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [showNotificaciones, setShowNotificaciones] = useState(false)
@@ -91,11 +92,18 @@ function MapPageInner() {
   const noLeidas = notifData?.no_leidas ?? 0
 
   const { data: estaciones = [], isLoading } = useQuery({
-    queryKey: ['estaciones', combustible, userLocation?.lat, userLocation?.lng],
+    queryKey: ['estaciones', combustible, estadoFilter, userLocation?.lat, userLocation?.lng],
     queryFn: () => {
-      const endpoint = userLocation ? '/estaciones/nearby' : '/estaciones'
+      let endpoint = '/estaciones'
       const params = { combustible }
-      if (userLocation) { params.lat = userLocation.lat; params.lng = userLocation.lng; params.radio = 15 }
+      if (estadoFilter) {
+        params.estado = estadoFilter
+      } else if (userLocation) {
+        endpoint = '/estaciones/nearby'
+        params.lat = userLocation.lat
+        params.lng = userLocation.lng
+        params.radio = 15
+      }
       return client.get(endpoint, { params }).then(r => {
         const list = r.data.estaciones || r.data || []
         return list.map(s => ({
@@ -136,6 +144,8 @@ function MapPageInner() {
         onCombustibleChange={setCombustible}
         userLocation={userLocation}
         onSelectStation={s => setSelectedStation(s)}
+        estadoFilter={estadoFilter}
+        onEstadoChange={setEstadoFilter}
       />
     ),
     mapa: (

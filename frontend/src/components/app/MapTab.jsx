@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Circle, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
+import 'leaflet.markercluster'
 import { Navigation, Loader2, Layers } from 'lucide-react'
 import StationSheet from './StationSheet'
 
@@ -65,16 +66,99 @@ function createMarkerIcon(precio, priceClass, isSelected = false) {
   })
 }
 
-function UserMarker({ position }) {
-  const icon = L.divIcon({
+function createClusterIcon(cluster) {
+  const count = cluster.getChildCount()
+  const sz = count < 10 ? 36 : count < 50 ? 42 : count < 200 ? 48 : 54
+  const fontSize = count < 100 ? 13 : count < 1000 ? 11 : 9
+  return L.divIcon({
     className: '',
-    html: `<div style="position:relative;width:20px;height:20px;">
-      <div style="position:absolute;inset:0;border-radius:50%;background:rgba(94,106,210,0.25);animation:pulse-ring 1.8s ease-out infinite;"></div>
-      <div style="position:absolute;inset:3px;border-radius:50%;background:#5E6AD2;border:2px solid white;box-shadow:0 2px 8px rgba(94,106,210,0.6);"></div>
+    html: `<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:rgba(94,106,210,0.92);border:2.5px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 14px rgba(94,106,210,0.55),0 4px 18px rgba(0,0,0,0.65);backdrop-filter:blur(4px);">
+      <span style="color:white;font-weight:800;font-size:${fontSize}px;font-family:'Manrope',sans-serif;line-height:1;">${count}</span>
     </div>`,
-    iconSize: [20, 20], iconAnchor: [10, 10],
+    iconSize: L.point(sz, sz),
+    iconAnchor: L.point(sz / 2, sz / 2),
   })
-  return <Marker position={[position.lat, position.lng]} icon={icon} />
+}
+
+function UserMarker({ position }) {
+  const map = useMap()
+  const markerRef = useRef(null)
+
+  useEffect(() => {
+    if (!position) return
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="position:relative;width:20px;height:20px;">
+        <div style="position:absolute;inset:0;border-radius:50%;background:rgba(94,106,210,0.25);animation:pulse-ring 1.8s ease-out infinite;"></div>
+        <div style="position:absolute;inset:3px;border-radius:50%;background:#5E6AD2;border:2px solid white;box-shadow:0 2px 8px rgba(94,106,210,0.6);"></div>
+      </div>`,
+      iconSize: [20, 20], iconAnchor: [10, 10],
+    })
+    const marker = L.marker([position.lat, position.lng], { icon, zIndexOffset: 1000 })
+    marker.addTo(map)
+    markerRef.current = marker
+    return () => marker.remove()
+  }, [position, map])
+
+  return null
+}
+
+function ClusteredMarkers({ estaciones, combustible, minP, maxP, onSelectStation }) {
+  const map = useMap()
+  const groupRef = useRef(null)
+
+  useEffect(() => {
+    if (!map) return
+
+    const group = L.markerClusterGroup({
+      maxClusterRadius: 55,
+      disableClusteringAtZoom: 14,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      animate: true,
+      iconCreateFunction: createClusterIcon,
+    })
+
+    const valid = estaciones?.filter(s => s.lat && s.lng) ?? []
+    for (const station of valid) {
+      const precio = station.precios?.[combustible]
+      const priceClass = getPriceClass(precio, minP, maxP)
+      const marker = L.marker([station.lat, station.lng], {
+        icon: createMarkerIcon(precio, priceClass, false),
+      })
+      marker.on('click', () => onSelectStation(station))
+      group.addLayer(marker)
+    }
+
+    map.addLayer(group)
+    groupRef.current = group
+    return () => { map.removeLayer(group) }
+  }, [estaciones, combustible, minP, maxP, map, onSelectStation])
+
+  return null
+}
+
+function SelectedMarker({ station, combustible, minP, maxP }) {
+  const map = useMap()
+  const markerRef = useRef(null)
+
+  useEffect(() => {
+    if (markerRef.current) { markerRef.current.remove(); markerRef.current = null }
+    if (!station?.lat || !station?.lng) return
+
+    const precio = station.precios?.[combustible]
+    const priceClass = getPriceClass(precio, minP, maxP)
+    const marker = L.marker([station.lat, station.lng], {
+      icon: createMarkerIcon(precio, priceClass, true),
+      zIndexOffset: 2000,
+    })
+    marker.addTo(map)
+    markerRef.current = marker
+    return () => { if (markerRef.current) { markerRef.current.remove(); markerRef.current = null } }
+  }, [station, combustible, minP, maxP, map])
+
+  return null
 }
 
 function MapFlyTo({ position }) {
@@ -91,7 +175,7 @@ function MapFlyTo({ position }) {
   return null
 }
 
-function MapCenterOnStation({ station, mapRef }) {
+function MapCenterOnStation({ station }) {
   const map = useMap()
   useEffect(() => {
     if (station?.lat && station?.lng) {
@@ -130,13 +214,10 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
             onClick={() => onCombustibleChange(c.key)}
             className="pressable"
             style={{
-              padding: '7px 16px',
-              borderRadius: 50,
-              border: 'none',
+              padding: '7px 16px', borderRadius: 50, border: 'none',
               background: combustible === c.key ? c.color : 'transparent',
               color: combustible === c.key ? 'white' : 'var(--color-muted)',
-              fontSize: 12, fontWeight: 700,
-              cursor: 'pointer', fontFamily: 'var(--font-body)',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-body)',
               transition: 'all 0.2s',
               boxShadow: combustible === c.key ? `0 2px 12px ${c.color}60` : 'none',
             }}
@@ -178,6 +259,7 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
         {selectedStation && <MapCenterOnStation station={selectedStation} />}
         {userLocation && <UserMarker position={userLocation} />}
 
+        {/* Heatmap circles */}
         {showHeatmap && estaciones?.map(station => {
           const precio = station.precios?.[combustible]
           if (!precio) return null
@@ -191,19 +273,23 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
           )
         })}
 
-        {estaciones?.map(station => {
-          const precio = station.precios?.[combustible]
-          const priceClass = getPriceClass(precio, minP, maxP)
-          const isSelected = selectedStation?._id === station._id
-          return (
-            <Marker
-              key={station._id}
-              position={[station.lat, station.lng]}
-              icon={createMarkerIcon(precio, priceClass, isSelected)}
-              eventHandlers={{ click: () => onSelectStation(station) }}
-            />
-          )
-        })}
+        {/* Clustered markers — rebuilt when data/combustible changes */}
+        <ClusteredMarkers
+          key={`${combustible}-${estaciones?.length}`}
+          estaciones={estaciones}
+          combustible={combustible}
+          minP={minP}
+          maxP={maxP}
+          onSelectStation={onSelectStation}
+        />
+
+        {/* Selected station — rendered on top, outside cluster group */}
+        <SelectedMarker
+          station={selectedStation}
+          combustible={combustible}
+          minP={minP}
+          maxP={maxP}
+        />
       </MapContainer>
 
       {/* GPS re-center button */}
@@ -224,7 +310,7 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
         </button>
       )}
 
-      {/* Heat map toggle button */}
+      {/* Heat map toggle */}
       <button
         className="pressable"
         onClick={() => setShowHeatmap(prev => !prev)}
@@ -236,8 +322,7 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
           border: showHeatmap ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(255,255,255,0.15)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(10px)',
-          transition: 'all 0.2s',
+          backdropFilter: 'blur(10px)', transition: 'all 0.2s',
         }}
       >
         <Layers size={18} color={showHeatmap ? '#EF4444' : '#8A8F98'} />

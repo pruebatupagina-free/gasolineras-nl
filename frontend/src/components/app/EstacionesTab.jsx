@@ -11,10 +11,40 @@ function truncateName(name, max = 24) {
   return (lastSpace > max * 0.55 ? cut.slice(0, lastSpace) : cut) + '…'
 }
 
-const MUNICIPIOS = [
-  'Todos',
-  'Monterrey', 'San Pedro Garza García', 'Guadalupe', 'Apodaca',
-  'Escobedo', 'Santa Catarina', 'Juárez', 'García', 'San Nicolás de los Garza',
+const ESTADOS_LIST = [
+  { value: '', label: 'Todo México' },
+  { value: 'AGUASCALIENTES', label: 'Aguascalientes' },
+  { value: 'BAJA CALIFORNIA', label: 'Baja California' },
+  { value: 'BAJA CALIFORNIA SUR', label: 'Baja California Sur' },
+  { value: 'CAMPECHE', label: 'Campeche' },
+  { value: 'CHIAPAS', label: 'Chiapas' },
+  { value: 'CHIHUAHUA', label: 'Chihuahua' },
+  { value: 'CIUDAD DE MEXICO', label: 'Ciudad de México' },
+  { value: 'COAHUILA', label: 'Coahuila' },
+  { value: 'COLIMA', label: 'Colima' },
+  { value: 'DURANGO', label: 'Durango' },
+  { value: 'ESTADO DE MEXICO', label: 'Estado de México' },
+  { value: 'GUANAJUATO', label: 'Guanajuato' },
+  { value: 'GUERRERO', label: 'Guerrero' },
+  { value: 'HIDALGO', label: 'Hidalgo' },
+  { value: 'JALISCO', label: 'Jalisco' },
+  { value: 'MICHOACAN', label: 'Michoacán' },
+  { value: 'MORELOS', label: 'Morelos' },
+  { value: 'NAYARIT', label: 'Nayarit' },
+  { value: 'NUEVO LEON', label: 'Nuevo León' },
+  { value: 'OAXACA', label: 'Oaxaca' },
+  { value: 'PUEBLA', label: 'Puebla' },
+  { value: 'QUERETARO', label: 'Querétaro' },
+  { value: 'QUINTANA ROO', label: 'Quintana Roo' },
+  { value: 'SAN LUIS POTOSI', label: 'San Luis Potosí' },
+  { value: 'SINALOA', label: 'Sinaloa' },
+  { value: 'SONORA', label: 'Sonora' },
+  { value: 'TABASCO', label: 'Tabasco' },
+  { value: 'TAMAULIPAS', label: 'Tamaulipas' },
+  { value: 'TLAXCALA', label: 'Tlaxcala' },
+  { value: 'VERACRUZ', label: 'Veracruz' },
+  { value: 'YUCATAN', label: 'Yucatán' },
+  { value: 'ZACATECAS', label: 'Zacatecas' },
 ]
 
 const COMBUST_COLORS = {
@@ -55,10 +85,11 @@ function distanceKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-export default function EstacionesTab({ estaciones = [], combustible, onCombustibleChange, userLocation, onSelectStation }) {
+export default function EstacionesTab({ estaciones = [], combustible, onCombustibleChange, userLocation, onSelectStation, estadoFilter = '', onEstadoChange = () => {} }) {
   const [query, setQuery] = useState('')
   const [municipio, setMunicipio] = useState('Todos')
   const [showMunicipios, setShowMunicipios] = useState(false)
+  const [showEstados, setShowEstados] = useState(false)
   const [compareIds, setCompareIds] = useState([])
   const [showComparador, setShowComparador] = useState(false)
   const [sortBy, setSortBy] = useState('precio')
@@ -71,6 +102,17 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   useEffect(() => {
     client.get('/estaciones/ratings-stats').then(res => setRatingsStats(res.data)).catch(() => {})
   }, [])
+
+  // Reset municipio when estado changes
+  useEffect(() => { setMunicipio('Todos') }, [estadoFilter])
+
+  // Dynamic municipio list from loaded estaciones
+  const municipiosDisponibles = useMemo(() => {
+    const set = new Set(estaciones.filter(s => s.municipio).map(s => s.municipio))
+    return ['Todos', ...[...set].sort()]
+  }, [estaciones])
+
+  const estadoLabel = ESTADOS_LIST.find(e => e.value === estadoFilter)?.label || 'Todo México'
 
   function toggleCompare(e, station) {
     e.stopPropagation()
@@ -159,12 +201,52 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
           )}
         </div>
 
-        {/* Filters row */}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {/* Filters row — Estado + Municipio */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          {/* Estado filter */}
+          <div style={{ position: 'relative', flex: 1 }}>
+            <button
+              onClick={() => { setShowEstados(!showEstados); setShowMunicipios(false) }}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 6,
+                background: estadoFilter ? 'rgba(94,106,210,0.12)' : 'rgba(255,255,255,0.05)',
+                border: estadoFilter ? '1px solid rgba(94,106,210,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 10, padding: '8px 12px', cursor: 'pointer',
+                color: estadoFilter ? '#A5B4FC' : '#8A8F98',
+                fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600,
+              }}
+            >
+              <MapPin size={13} />
+              <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {estadoLabel}
+              </span>
+              <span style={{ fontSize: 10 }}>{showEstados ? '▲' : '▼'}</span>
+            </button>
+
+            {showEstados && (
+              <div style={{
+                position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 101,
+                background: '#141416', border: '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 12, overflow: 'auto', maxHeight: 280, boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+              }}>
+                {ESTADOS_LIST.map(e => (
+                  <button key={e.value} onClick={() => { onEstadoChange(e.value); setShowEstados(false) }} style={{
+                    width: '100%', padding: '11px 14px',
+                    background: estadoFilter === e.value ? 'rgba(94,106,210,0.12)' : 'transparent',
+                    border: 'none', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    color: estadoFilter === e.value ? '#A5B4FC' : '#EDEDEF',
+                    textAlign: 'left', cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: 13,
+                    fontWeight: estadoFilter === e.value ? 700 : 400,
+                  }}>{e.label}</button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Municipio filter */}
           <div style={{ position: 'relative', flex: 1 }}>
             <button
-              onClick={() => setShowMunicipios(!showMunicipios)}
+              onClick={() => { setShowMunicipios(!showMunicipios); setShowEstados(false) }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 6,
                 background: municipio !== 'Todos' ? 'rgba(94,106,210,0.12)' : 'rgba(255,255,255,0.05)',
@@ -185,9 +267,9 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
               <div style={{
                 position: 'absolute', top: '110%', left: 0, right: 0, zIndex: 100,
                 background: '#141416', border: '1px solid rgba(255,255,255,0.12)',
-                borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+                borderRadius: 12, overflow: 'auto', maxHeight: 240, boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
               }}>
-                {MUNICIPIOS.map(m => (
+                {municipiosDisponibles.map(m => (
                   <button key={m} onClick={() => { setMunicipio(m); setShowMunicipios(false) }} style={{
                     width: '100%', padding: '11px 14px', background: municipio === m ? 'rgba(94,106,210,0.12)' : 'transparent',
                     border: 'none', borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -199,25 +281,25 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
               </div>
             )}
           </div>
+        </div>
 
-          {/* Combustible pills */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['magna', 'premium', 'diesel'].map(fuel => {
-              const fc = COMBUST_COLORS[fuel]
-              const active = combustible === fuel
-              return (
-                <button key={fuel} onClick={() => onCombustibleChange(fuel)} style={{
-                  padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                  fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
-                  background: active ? `${fc.color}20` : 'rgba(255,255,255,0.05)',
-                  color: active ? fc.color : '#8A8F98',
-                  transition: 'all 0.15s',
-                }}>
-                  {fuel === 'magna' ? 'Mag' : fuel === 'premium' ? 'Pre' : 'Die'}
-                </button>
-              )
-            })}
-          </div>
+        {/* Combustible pills */}
+        <div style={{ display: 'flex', gap: 4 }}>
+          {['magna', 'premium', 'diesel'].map(fuel => {
+            const fc = COMBUST_COLORS[fuel]
+            const active = combustible === fuel
+            return (
+              <button key={fuel} onClick={() => onCombustibleChange(fuel)} style={{
+                padding: '7px 10px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
+                background: active ? `${fc.color}20` : 'rgba(255,255,255,0.05)',
+                color: active ? fc.color : '#8A8F98',
+                transition: 'all 0.15s',
+              }}>
+                {fuel === 'magna' ? 'Mag' : fuel === 'premium' ? 'Pre' : 'Die'}
+              </button>
+            )
+          })}
         </div>
 
         {/* Brand filter pills — only when 2+ distinct brands exist */}
@@ -265,7 +347,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
       {/* Sort toggle + count + favoritas */}
       <div style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         <span style={{ fontSize: 11, color: '#8A8F98', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {showFavs ? `${filtered.length} favoritas` : `${filtered.length} estaciones${municipio !== 'Todos' ? ` · ${municipio}` : ''}${marcaFilter !== 'Todas' ? ` · ${marcaFilter}` : ''}${query ? ` · "${query}"` : ''}`}
+          {showFavs ? `${filtered.length} favoritas` : `${filtered.length} estaciones${estadoFilter ? ` · ${estadoLabel}` : ''}${municipio !== 'Todos' ? ` · ${municipio}` : ''}${marcaFilter !== 'Todas' ? ` · ${marcaFilter}` : ''}${query ? ` · "${query}"` : ''}`}
         </span>
         {favIds.length > 0 && (
           <button onClick={() => setShowFavs(p => !p)} style={{
@@ -300,7 +382,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
           <div style={{ padding: 40, textAlign: 'center' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <div style={{ color: '#8A8F98', fontSize: 14 }}>No se encontraron estaciones</div>
-            <button onClick={() => { setQuery(''); setMunicipio('Todos'); setMarcaFilter('Todas'); setShowFavs(false) }} style={{
+            <button onClick={() => { setQuery(''); setMunicipio('Todos'); setMarcaFilter('Todas'); setShowFavs(false); onEstadoChange('') }} style={{
               marginTop: 12, background: 'none', border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 8, padding: '8px 16px', color: '#8A8F98', cursor: 'pointer', fontSize: 13,
               fontFamily: 'var(--font-body)',

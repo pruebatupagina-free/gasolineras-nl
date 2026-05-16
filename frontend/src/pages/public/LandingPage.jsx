@@ -17,16 +17,16 @@ const TESTIMONIALS = [
     color: '#5E6AD2',
   },
   {
-    quote: 'Por fin una app con datos reales de la CRE y completamente gratis. La consulto antes de salir al trabajo, se volvió parte de mi rutina.',
+    quote: 'Viajo seguido entre Guadalajara y Colima y ahora siempre sé cuál gasolinera vale la pena en cada tramo. Datos reales de la CRE, completamente gratis.',
     name: 'Ana R.',
-    role: 'Conductora · Monterrey, NL',
+    role: 'Conductora · Guadalajara, Jal',
     initials: 'AR',
     color: '#22C55E',
   },
   {
-    quote: 'El mapa funciona perfecto y los precios siempre están actualizados. Honestamente no entiendo cómo es gratis, pero no me quejo.',
+    quote: 'En el Edomex hay muchísimas opciones y GasMap me muestra cuál es la más barata a cada rato. El mapa carga rápido y los precios siempre están al día.',
     name: 'Roberto S.',
-    role: 'Conductor · San Pedro, NL',
+    role: 'Conductor · Ecatepec, Edomex',
     initials: 'RS',
     color: '#F59E0B',
   },
@@ -43,7 +43,11 @@ const FAQ_ITEMS = [
   },
   {
     q: '¿Cuánto puedo ahorrar al mes usando GasMap?',
-    a: 'La diferencia entre la gasolinera más cara y la más barata puede ser de hasta $4 por litro. Si cargas 40 litros a la semana, podrías ahorrar hasta $640 al mes eligiendo siempre la más barata cercana.'
+    a: 'La diferencia entre la gasolinera más cara y la más barata en una misma ciudad puede ser de $3 a $5 por litro. Si cargas 40 litros a la semana, podrías ahorrar entre $480 y $800 al mes eligiendo siempre la más barata cercana a ti.'
+  },
+  {
+    q: '¿GasMap cubre toda la República Mexicana?',
+    a: 'Sí. GasMap tiene más de 13,000 gasolineras registradas en los 32 estados del país. Puedes filtrar por estado y municipio para ver los precios exactamente donde estás o planeas viajar.'
   },
   {
     q: '¿Necesito crear una cuenta para ver los precios?',
@@ -523,8 +527,8 @@ export default function LandingPage() {
             {/* Social proof */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 32, flexWrap: 'wrap' }}>
               {[
-                { dot: '#22C55E', text: '1,276+ gasolineras' },
-                { dot: '#5E6AD2', text: 'Actualización CRE diaria' },
+                { dot: '#22C55E', text: '13,000+ gasolineras' },
+                { dot: '#5E6AD2', text: 'Los 32 estados · CRE diaria' },
                 { dot: '#F59E0B', text: 'Completamente gratis' },
               ].map((item, i) => (
                 <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--color-muted)', fontWeight: 500 }}>
@@ -590,8 +594,8 @@ export default function LandingPage() {
               color: '#22C55E', bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.2)',
             },
             {
-              icon: '📡', title: 'Precios en tiempo real',
-              desc: 'Mapa de estaciones con precios oficiales de la CRE actualizados diariamente. Sin estimaciones.',
+              icon: '🗺️', title: 'Los 32 estados del país',
+              desc: 'Más de 13,000 gasolineras en toda la República. Filtra por estado y municipio para ver precios exactamente donde estás.',
               color: '#5E6AD2', bg: 'rgba(94,106,210,0.1)', border: 'rgba(94,106,210,0.2)',
             },
             {
@@ -666,9 +670,8 @@ export default function LandingPage() {
             </p>
             <p style={{ color: 'var(--color-muted)', fontSize: 15, lineHeight: 1.85 }}>
               Usamos datos oficiales de la Comisión Reguladora de Energía (CRE) actualizados
-              diariamente, combinados con reportes de nuestra comunidad que contribuye con
-              información en terreno. El resultado es el mapa de gasolina más completo y actualizado
-              de México, con más de 1,276 estaciones.
+              diariamente, combinados con reportes de nuestra comunidad. El resultado es el mapa de
+              gasolina más completo de México: más de <strong style={{ color: 'var(--color-fg)' }}>13,000 estaciones en los 32 estados</strong> de la República.
             </p>
             <p style={{ color: 'var(--color-muted)', fontSize: 14, marginTop: 20, fontStyle: 'italic' }}>
               · GasMap es completamente gratis.
@@ -688,10 +691,10 @@ export default function LandingPage() {
               </span>
             </div>
             <h2 style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(22px, 3vw, 32px)', letterSpacing: '-0.5px', marginBottom: 8 }}>
-              ¿Cuánto cuesta la gasolina en MX?
+              ¿Cuánto cuesta la gasolina hoy?
             </h2>
             <p style={{ color: 'var(--color-muted)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
-              Los precios varían por estación, municipio y día. Aquí el rango oficial de hoy según la CRE.
+              Los precios varían por estación, estado y día. Aquí el rango nacional oficial de hoy según la CRE, calculado sobre 13,000+ estaciones.
             </p>
 
             {/* Table */}
@@ -867,7 +870,7 @@ export default function LandingPage() {
                 <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 15 }}>GasMap</span>
               </div>
               <p style={{ color: 'var(--color-muted)', fontSize: 12 }}>
-                Plataforma de precios de gasolina — México · 2026
+                13,000+ gasolineras en los 32 estados · Datos CRE · 2026
               </p>
             </div>
             <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>

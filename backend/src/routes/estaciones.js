@@ -9,6 +9,8 @@ router.get('/nearby', ctrl.nearby)
 router.get('/stats', ctrl.stats)
 router.get('/sync-status', ctrl.syncStatus)
 router.get('/ratings-stats', resenaCtrl.getRatingsStats)
+router.get('/estados', ctrl.getEstados)
+router.get('/municipios', ctrl.getMunicipios)
 router.get('/', ctrl.list)
 router.get('/:id/historial', ctrl.historial)
 
