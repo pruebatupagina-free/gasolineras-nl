@@ -28,7 +28,7 @@ function monthLabel(key) {
 export default function HistorialTab() {
   const { data: cargas = [], isLoading } = useQuery({
     queryKey: ['cargas'],
-    queryFn: () => client.get('/garaje/cargas').then(r => r.data),
+    queryFn: () => client.get('/garaje/cargas').then(r => r.data.cargas || []),
     staleTime: 2 * 60 * 1000,
   })
 
@@ -59,7 +59,7 @@ export default function HistorialTab() {
         {cargas.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
             {[
-              { label: 'Gastado', value: `$${((stats?.total) || 0).toFixed(0)}`, color: '#5E6AD2', icon: BarChart2 },
+              { label: 'Gastado', value: `$${(stats?.total?.total_mxn || 0).toFixed(0)}`, color: '#5E6AD2', icon: BarChart2 },
               { label: 'Litros', value: totalLitros.toFixed(0) + 'L', color: '#22C55E', icon: Droplets },
               { label: 'Precio avg', value: `$${avgPrecio.toFixed(2)}`, color: '#F59E0B', icon: TrendingDown },
             ].map(({ label, value, color, icon: Icon }, i) => (
@@ -76,7 +76,7 @@ export default function HistorialTab() {
         )}
 
         {/* Este mes highlight */}
-        {stats?.mes > 0 && (
+        {stats?.mes?.total_mxn > 0 && (
           <div className="animate-card-enter" style={{
             background: 'rgba(94,106,210,0.08)', border: '1px solid rgba(94,106,210,0.2)',
             borderRadius: 16, padding: '14px 16px', marginBottom: 16,
@@ -88,7 +88,7 @@ export default function HistorialTab() {
             <div>
               <div style={{ fontSize: 11, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8 }}>Gasto este mes</div>
               <div style={{ fontSize: 26, fontWeight: 800, color: '#818CF8', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>
-                ${stats.mes.toFixed(0)} MXN
+                ${(stats.mes?.total_mxn || 0).toFixed(0)} MXN
               </div>
             </div>
           </div>
