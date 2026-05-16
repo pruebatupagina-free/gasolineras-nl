@@ -5,5 +5,6 @@ const ctrl = require('../controllers/pushController')
 router.get('/vapid-public-key', ctrl.vapidPublicKey)
 router.post('/subscribe', auth, ctrl.subscribe)
 router.post('/unsubscribe', auth, ctrl.unsubscribe)
+router.post('/test', auth, ctrl.testPush)
 
 module.exports = router

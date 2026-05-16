@@ -3,6 +3,8 @@ import { LogOut, User, Shield, Info, ChevronRight, Bell, Zap, Star, Download, Be
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { usePush } from '../../hooks/usePush'
+import client from '../../api/client'
+import toast from 'react-hot-toast'
 
 const APP_VERSION = '2.0.0'
 
@@ -33,6 +35,15 @@ export default function PerfilTab() {
     if (outcome === 'accepted') {
       setCanInstall(false)
       deferredPrompt.current = null
+    }
+  }
+
+  async function handleTestPush() {
+    try {
+      await client.post('/push/test')
+      toast.success('Notificación enviada — revisa tu dispositivo')
+    } catch {
+      toast.error('Error: sin suscripción activa o token inválido')
     }
   }
 
@@ -158,6 +169,24 @@ export default function PerfilTab() {
             </div>
           </div>
         ))}
+
+        {/* Test push — solo cuando hay suscripción activa */}
+        {push.subscribed && (
+          <button
+            onClick={handleTestPush}
+            className="pressable"
+            style={{
+              width: '100%', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)',
+              borderRadius: 14, padding: '12px', color: '#F59E0B',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-body)',
+              marginBottom: 12,
+            }}
+          >
+            <Bell size={15} />
+            Enviar notificación de prueba
+          </button>
+        )}
 
         {/* Logout */}
         {showLogoutConfirm ? (
