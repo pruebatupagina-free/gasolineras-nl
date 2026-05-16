@@ -156,7 +156,7 @@ export default function GarajeTab() {
 
   const { data: vehiculos = [], isLoading: loadingV } = useQuery({
     queryKey: ['vehiculos'],
-    queryFn: () => client.get('/garaje/vehiculos').then(r => r.data),
+    queryFn: () => client.get('/garaje/vehiculos').then(r => r.data.vehiculos || []),
   })
 
   const { data: stats } = useQuery({
@@ -167,7 +167,7 @@ export default function GarajeTab() {
 
   const { data: cargas = [], isLoading: loadingC } = useQuery({
     queryKey: ['cargas', selectedVehicle],
-    queryFn: () => client.get('/garaje/cargas').then(r => r.data),
+    queryFn: () => client.get('/garaje/cargas').then(r => r.data.cargas || []),
   })
 
   const deleteVehiculo = useMutation({
