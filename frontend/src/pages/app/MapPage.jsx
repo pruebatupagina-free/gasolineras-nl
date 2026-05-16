@@ -157,6 +157,8 @@ function MapPageInner() {
         selectedStation={selectedStation}
         onSelectStation={setSelectedStation}
         isLoading={isLoading}
+        estadoFilter={estadoFilter}
+        onEstadoChange={setEstadoFilter}
       />
     ),
     garaje: <GarajeTab />,
@@ -230,6 +232,8 @@ function MapPageInner() {
             selectedStation={selectedStation}
             onSelectStation={setSelectedStation}
             isLoading={isLoading}
+            estadoFilter={estadoFilter}
+            onEstadoChange={setEstadoFilter}
           />
         </div>
       </div>

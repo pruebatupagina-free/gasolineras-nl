@@ -2,8 +2,44 @@ import { useState, useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet.markercluster'
-import { Navigation, Loader2, Layers } from 'lucide-react'
+import { Navigation, Loader2, Layers, MapPin, X } from 'lucide-react'
 import StationSheet from './StationSheet'
+
+const ESTADOS_LIST = [
+  { value: '', label: 'Todo México' },
+  { value: 'AGUASCALIENTES', label: 'Aguascalientes' },
+  { value: 'BAJA CALIFORNIA', label: 'Baja California' },
+  { value: 'BAJA CALIFORNIA SUR', label: 'Baja California Sur' },
+  { value: 'CAMPECHE', label: 'Campeche' },
+  { value: 'CHIAPAS', label: 'Chiapas' },
+  { value: 'CHIHUAHUA', label: 'Chihuahua' },
+  { value: 'CIUDAD DE MEXICO', label: 'Ciudad de México' },
+  { value: 'COAHUILA', label: 'Coahuila' },
+  { value: 'COLIMA', label: 'Colima' },
+  { value: 'DURANGO', label: 'Durango' },
+  { value: 'ESTADO DE MEXICO', label: 'Estado de México' },
+  { value: 'GUANAJUATO', label: 'Guanajuato' },
+  { value: 'GUERRERO', label: 'Guerrero' },
+  { value: 'HIDALGO', label: 'Hidalgo' },
+  { value: 'JALISCO', label: 'Jalisco' },
+  { value: 'MICHOACAN', label: 'Michoacán' },
+  { value: 'MORELOS', label: 'Morelos' },
+  { value: 'NAYARIT', label: 'Nayarit' },
+  { value: 'NUEVO LEON', label: 'Nuevo León' },
+  { value: 'OAXACA', label: 'Oaxaca' },
+  { value: 'PUEBLA', label: 'Puebla' },
+  { value: 'QUERETARO', label: 'Querétaro' },
+  { value: 'QUINTANA ROO', label: 'Quintana Roo' },
+  { value: 'SAN LUIS POTOSI', label: 'San Luis Potosí' },
+  { value: 'SINALOA', label: 'Sinaloa' },
+  { value: 'SONORA', label: 'Sonora' },
+  { value: 'TABASCO', label: 'Tabasco' },
+  { value: 'TAMAULIPAS', label: 'Tamaulipas' },
+  { value: 'TLAXCALA', label: 'Tlaxcala' },
+  { value: 'VERACRUZ', label: 'Veracruz' },
+  { value: 'YUCATAN', label: 'Yucatán' },
+  { value: 'ZACATECAS', label: 'Zacatecas' },
+]
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -185,9 +221,11 @@ function MapCenterOnStation({ station }) {
   return null
 }
 
-export default function MapTab({ estaciones, combustible, onCombustibleChange, userLocation, selectedStation, onSelectStation, isLoading }) {
+export default function MapTab({ estaciones, combustible, onCombustibleChange, userLocation, selectedStation, onSelectStation, isLoading, estadoFilter = '', onEstadoChange = () => {} }) {
   const mapRef = useRef(null)
   const [showHeatmap, setShowHeatmap] = useState(false)
+  const [showEstadoPicker, setShowEstadoPicker] = useState(false)
+  const estadoLabel = ESTADOS_LIST.find(e => e.value === estadoFilter)?.label || 'Todo México'
 
   const prices = estaciones?.map(e => e.precios?.[combustible]).filter(Boolean) ?? []
   const minP = prices.length ? Math.min(...prices) : 0
@@ -225,6 +263,72 @@ export default function MapTab({ estaciones, combustible, onCombustibleChange, u
             {c.label}
           </button>
         ))}
+      </div>
+
+      {/* Estado filter chip */}
+      <div style={{ position: 'absolute', top: 62, left: '50%', transform: 'translateX(-50%)', zIndex: 900 }}>
+        <button
+          onClick={() => setShowEstadoPicker(p => !p)}
+          className="pressable"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            background: estadoFilter ? 'rgba(94,106,210,0.88)' : 'rgba(5,5,6,0.85)',
+            backdropFilter: 'blur(16px)',
+            border: estadoFilter ? '1px solid rgba(94,106,210,0.6)' : '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 50, padding: '5px 12px 5px 10px',
+            cursor: 'pointer', boxShadow: '0 2px 12px rgba(0,0,0,0.45)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <MapPin size={11} color={estadoFilter ? 'white' : '#8A8F98'} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: estadoFilter ? 'white' : '#8A8F98', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}>
+            {estadoFilter ? estadoLabel : 'Todo México'}
+          </span>
+          {estadoFilter && (
+            <span
+              onClick={e => { e.stopPropagation(); onEstadoChange(''); setShowEstadoPicker(false) }}
+              style={{ marginLeft: 2, display: 'flex', alignItems: 'center', opacity: 0.8, cursor: 'pointer' }}
+            >
+              <X size={10} color="white" />
+            </span>
+          )}
+          {!estadoFilter && <span style={{ fontSize: 9, color: '#8A8F98', marginLeft: 1 }}>▼</span>}
+        </button>
+
+        {/* Dropdown */}
+        {showEstadoPicker && (
+          <>
+            {/* Backdrop to close */}
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: -1 }}
+              onClick={() => setShowEstadoPicker(false)}
+            />
+            <div style={{
+              position: 'absolute', top: '110%', left: '50%', transform: 'translateX(-50%)',
+              width: 220, maxHeight: 300, overflowY: 'auto',
+              background: '#141416', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
+              zIndex: 10,
+            }}>
+              {ESTADOS_LIST.map(e => (
+                <button
+                  key={e.value}
+                  onClick={() => { onEstadoChange(e.value); setShowEstadoPicker(false) }}
+                  style={{
+                    width: '100%', padding: '10px 14px', textAlign: 'left',
+                    background: estadoFilter === e.value ? 'rgba(94,106,210,0.15)' : 'transparent',
+                    border: 'none', borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    color: estadoFilter === e.value ? '#A5B4FC' : '#EDEDEF',
+                    fontSize: 13, fontWeight: estadoFilter === e.value ? 700 : 400,
+                    fontFamily: 'var(--font-body)', cursor: 'pointer',
+                  }}
+                >
+                  {e.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Loading overlay */}
