@@ -1,4 +1,4 @@
-const CACHE = 'gasmap-v1'
+const CACHE = 'gasmap-v2'
 const BASE = '/gasolineras-nl'
 
 const PRECACHE = [
@@ -72,6 +72,33 @@ self.addEventListener('fetch', e => {
         return response
       })
       return cached || networkFetch
+    })
+  )
+})
+
+self.addEventListener('push', e => {
+  const data = e.data?.json() || {}
+  e.waitUntil(
+    self.registration.showNotification(data.title || 'GasMap', {
+      body: data.body || '',
+      icon: `${BASE}/icon-192.png`,
+      badge: `${BASE}/icon-192.png`,
+      data: { url: data.url || `${BASE}/` },
+      tag: 'gasmap-alerta',
+      renotify: true,
+    })
+  )
+})
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close()
+  const url = e.notification.data?.url || `${BASE}/`
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) {
+        if (c.url.includes('/gasolineras-nl') && 'focus' in c) return c.focus()
+      }
+      return clients.openWindow(url)
     })
   )
 })
