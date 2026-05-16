@@ -128,6 +128,15 @@ async function verificarAlertas() {
 module.exports = function initCrons() {
   cron.schedule('30 18 * * *', sincronizarPrecios, { timezone: 'America/Monterrey' })
   console.log('[Sync CRE] Cron programado: diario 18:30 Monterrey')
+
+  // Geocodificación acelerada: cada 2h, 300 estaciones por run
+  // 300 × 12 runs/día = 3,600/día → ~4 días para completar las 13,659
+  cron.schedule('0 */2 * * *', () => {
+    console.log('[Geocode Cron] Iniciando geocodificación programada...')
+    geocodeAllPending(300).catch(err => console.error('[Geocode Cron]', err.message))
+  })
+  console.log('[Geocode Cron] Cron programado: cada 2 horas, 300 estaciones por run')
+
   return sincronizarPrecios
 }
 

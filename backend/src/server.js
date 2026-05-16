@@ -39,6 +39,17 @@ app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', ts: new Date(), env: process.env.NODE_ENV })
 )
 
+app.post('/api/admin/geocode', (req, res) => {
+  const secret = req.headers['x-admin-secret']
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+  const limit = Math.min(parseInt(req.query.limit) || 500, 1000)
+  const { geocodeAllPending } = require('./utils/geocode')
+  geocodeAllPending(limit).catch(err => console.error('[Admin Geocode]', err.message))
+  res.json({ message: `Geocodificando hasta ${limit} estaciones en background` })
+})
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack)

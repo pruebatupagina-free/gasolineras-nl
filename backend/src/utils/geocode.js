@@ -18,33 +18,43 @@ async function reverseGeocode(lat, lng) {
   return { calle, colonia, municipio }
 }
 
-async function geocodeAllPending() {
-  // Process stations missing street address or municipio, max 100 per run
-  const pending = await Estacion.find({
-    $or: [{ calle: null }, { municipio: null }],
-    activa: true,
-  }).select('_id location').limit(100).lean()
+let _geocoding = false
 
-  if (!pending.length) {
-    console.log('[Geocode] No hay estaciones pendientes de geocodificar')
+async function geocodeAllPending(limit = 300) {
+  if (_geocoding) {
+    console.log('[Geocode] Ya hay una geocodificación en curso, omitiendo')
     return 0
   }
-  console.log(`[Geocode] Geocodificando ${pending.length} estaciones...`)
-  let done = 0
-  for (const est of pending) {
-    try {
-      const [lng, lat] = est.location.coordinates
-      const addr = await reverseGeocode(lat, lng)
-      await Estacion.updateOne({ _id: est._id }, { $set: addr })
-      done++
-      if (done % 50 === 0) console.log(`[Geocode] ${done}/${pending.length} procesadas`)
-    } catch (err) {
-      console.error(`[Geocode] Error ${est._id}:`, err.message)
+  _geocoding = true
+  try {
+    const pending = await Estacion.find({
+      $or: [{ calle: null }, { municipio: null }],
+      activa: true,
+    }).select('_id location').limit(limit).lean()
+
+    if (!pending.length) {
+      console.log('[Geocode] No hay estaciones pendientes de geocodificar')
+      return 0
     }
-    await new Promise(r => setTimeout(r, 1100))
+    console.log(`[Geocode] Geocodificando ${pending.length} estaciones (límite ${limit})...`)
+    let done = 0
+    for (const est of pending) {
+      try {
+        const [lng, lat] = est.location.coordinates
+        const addr = await reverseGeocode(lat, lng)
+        await Estacion.updateOne({ _id: est._id }, { $set: addr })
+        done++
+        if (done % 100 === 0) console.log(`[Geocode] ${done}/${pending.length} procesadas`)
+      } catch (err) {
+        console.error(`[Geocode] Error ${est._id}:`, err.message)
+      }
+      await new Promise(r => setTimeout(r, 1100))
+    }
+    console.log(`[Geocode] ✅ ${done} estaciones geocodificadas`)
+    return done
+  } finally {
+    _geocoding = false
   }
-  console.log(`[Geocode] ✅ ${done} estaciones geocodificadas`)
-  return done
 }
 
 module.exports = { geocodeAllPending }
