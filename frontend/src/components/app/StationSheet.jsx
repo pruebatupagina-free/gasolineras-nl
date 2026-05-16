@@ -1,6 +1,78 @@
 import { useRef, useEffect, useState } from 'react'
-import { X, Navigation, Flag, Fuel, Clock, MapPin, ChevronRight, ExternalLink, AlertTriangle } from 'lucide-react'
+import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2 } from 'lucide-react'
 import ReportModal from './ReportModal'
+import client from '../../api/client'
+
+const COMBUST_COLORS = { magna: '#22C55E', premium: '#5E6AD2', diesel: '#F59E0B' }
+
+function PriceChart({ data, combustible }) {
+  const color = COMBUST_COLORS[combustible] || '#5E6AD2'
+  const points = data
+    .map(d => ({ fecha: d.fecha, price: d.precios?.[combustible] }))
+    .filter(d => d.price != null && d.price >= 15)
+
+  if (points.length < 2) {
+    return (
+      <div style={{ textAlign: 'center', padding: '14px 0 4px', color: 'var(--color-muted)', fontSize: 11 }}>
+        Los precios se registran diariamente — vuelve mañana para ver la gráfica
+      </div>
+    )
+  }
+
+  const W = 300
+  const H = 64
+  const PL = 4, PR = 4, PT = 8, PB = 16
+  const innerW = W - PL - PR
+  const innerH = H - PT - PB
+
+  const prices = points.map(p => p.price)
+  const minP = Math.min(...prices)
+  const maxP = Math.max(...prices)
+  const range = maxP - minP || 0.5
+
+  const coords = points.map((p, i) => ({
+    x: PL + (i / (points.length - 1)) * innerW,
+    y: PT + innerH - ((p.price - minP) / range) * innerH,
+    price: p.price,
+    fecha: p.fecha,
+  }))
+
+  const linePath = coords.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${(H - PB).toFixed(1)} L${coords[0].x.toFixed(1)},${(H - PB).toFixed(1)} Z`
+
+  const first = coords[0]
+  const last = coords[coords.length - 1]
+  const diff = last.price - first.price
+  const diffLabel = diff === 0 ? 'Sin cambios' : `${diff > 0 ? '+' : ''}$${diff.toFixed(2)} vs hace ${points.length}d`
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <span style={{ fontSize: 10, color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+          Últimos {points.length} días
+        </span>
+        <span style={{ fontSize: 10, color: diff < 0 ? '#22C55E' : diff > 0 ? '#EF4444' : 'var(--color-muted)', fontWeight: 700 }}>
+          {diffLabel}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H, overflow: 'visible' }}>
+        {/* Area fill */}
+        <path d={areaPath} fill={`${color}18`} />
+        {/* Line */}
+        <path d={linePath} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        {/* First and last dots with labels */}
+        <circle cx={first.x} cy={first.y} r={3.5} fill={color} />
+        <circle cx={last.x} cy={last.y} r={3.5} fill={color} />
+        <text x={first.x} y={H - 2} textAnchor="middle" fill="var(--color-muted, #8A8F98)" fontSize={8.5}>
+          ${first.price.toFixed(2)}
+        </text>
+        <text x={last.x} y={H - 2} textAnchor="middle" fill={color} fontSize={8.5} fontWeight="700">
+          ${last.price.toFixed(2)}
+        </text>
+      </svg>
+    </div>
+  )
+}
 
 const COMBUST = [
   { key: 'magna',   label: 'Magna',   color: '#22C55E', bg: 'rgba(34,197,94,0.12)',   border: 'rgba(34,197,94,0.25)' },
@@ -18,7 +90,19 @@ function distanceKm(lat1, lng1, lat2, lng2) {
 
 export default function StationSheet({ station, combustible, userLocation, onClose, onNavigate }) {
   const [reportCombust, setReportCombust] = useState(null)
+  const [historial, setHistorial] = useState(null)
+  const [loadingHist, setLoadingHist] = useState(false)
   const sheetRef = useRef(null)
+
+  useEffect(() => {
+    if (!station?._id) return
+    setHistorial(null)
+    setLoadingHist(true)
+    client.get(`/estaciones/${station._id}/historial?dias=30`)
+      .then(res => setHistorial(res.data.historial || []))
+      .catch(() => setHistorial([]))
+      .finally(() => setLoadingHist(false))
+  }, [station?._id])
 
   useEffect(() => {
     const el = sheetRef.current
@@ -152,6 +236,23 @@ export default function StationSheet({ station, combustible, userLocation, onClo
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Price history chart */}
+          <div style={{ margin: '0 20px 16px', padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+              <TrendingUp size={13} color={COMBUST_COLORS[combustible] || '#5E6AD2'} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                Evolución del precio
+              </span>
+            </div>
+            {loadingHist ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0' }}>
+                <Loader2 size={16} color="var(--color-muted)" style={{ animation: 'spin 1s linear infinite' }} />
+              </div>
+            ) : (
+              <PriceChart data={historial || []} combustible={combustible} />
+            )}
           </div>
 
           {/* Address */}

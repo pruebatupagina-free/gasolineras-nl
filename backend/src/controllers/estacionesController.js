@@ -1,4 +1,5 @@
 const Estacion = require('../models/Estacion')
+const PrecioHistorial = require('../models/PrecioHistorial')
 
 // GET /api/estaciones/nearby?lat=25.65&lng=-100.38&combustible=magna&radio=15
 exports.nearby = async (req, res, next) => {
@@ -88,6 +89,28 @@ exports.stats = async (req, res, next) => {
       diesel: diesel[0] || null,
       actualizado: new Date(),
     })
+  } catch (err) {
+    next(err)
+  }
+}
+
+// GET /api/estaciones/:id/historial?dias=30
+exports.historial = async (req, res, next) => {
+  try {
+    const dias = Math.min(parseInt(req.query.dias) || 30, 90)
+    const desde = new Date()
+    desde.setDate(desde.getDate() - dias)
+    desde.setHours(0, 0, 0, 0)
+
+    const historial = await PrecioHistorial.find({
+      estacion_id: req.params.id,
+      fecha: { $gte: desde },
+    })
+      .sort({ fecha: 1 })
+      .select('fecha precios -_id')
+      .lean()
+
+    res.json({ total: historial.length, historial })
   } catch (err) {
     next(err)
   }
