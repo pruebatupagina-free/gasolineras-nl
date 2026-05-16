@@ -31,15 +31,26 @@ function createMarkerIcon(precio, priceClass, isSelected = false) {
   const colors = { 'marker-cheap': '#22C55E', 'marker-mid': '#F59E0B', 'marker-expensive': '#EF4444' }
   const color = colors[priceClass] || '#F59E0B'
   const label = precio ? `$${precio.toFixed(0)}` : '?'
-  const size = isSelected ? 48 : 40
-  const border = isSelected ? '3px solid white' : '2px solid rgba(255,255,255,0.4)'
-  const shadow = isSelected ? '0 4px 20px rgba(0,0,0,0.8), 0 0 0 4px rgba(255,255,255,0.15)' : '0 2px 8px rgba(0,0,0,0.5)'
+  const sz = isSelected ? 42 : 34
+  const tip = isSelected ? 12 : 10
+  const totalH = sz + tip
+  const halfSz = sz / 2
+  const tipW = sz / 4
+  const border = isSelected ? '3px solid white' : '2px solid rgba(255,255,255,0.55)'
+  const glow = isSelected
+    ? `0 0 0 3px ${color}50, 0 4px 18px rgba(0,0,0,0.7)`
+    : `0 3px 10px rgba(0,0,0,0.55)`
   return L.divIcon({
     className: '',
-    html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:${shadow};border:${border};transition:all 0.2s;">
-      <span style="color:white;font-weight:700;font-size:${isSelected ? 11 : 10}px;font-family:'Manrope',sans-serif;">${label}</span>
+    html: `<div style="position:relative;width:${sz}px;height:${totalH}px;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.45))">
+      <div style="position:absolute;top:0;left:0;width:${sz}px;height:${sz}px;border-radius:50%;background:${color};border:${border};box-shadow:${glow};display:flex;align-items:center;justify-content:center;">
+        <span style="color:white;font-weight:800;font-size:${isSelected ? 11 : 9}px;font-family:'Manrope',sans-serif;line-height:1;">${label}</span>
+      </div>
+      <div style="position:absolute;bottom:0;left:${halfSz - tipW}px;width:0;height:0;border-left:${tipW}px solid transparent;border-right:${tipW}px solid transparent;border-top:${tip}px solid ${color};"></div>
     </div>`,
-    iconSize: [size, size], iconAnchor: [size / 2, size / 2], popupAnchor: [0, -(size / 2 + 4)],
+    iconSize: [sz, totalH],
+    iconAnchor: [halfSz, totalH],
+    popupAnchor: [0, -(totalH + 4)],
   })
 }
 

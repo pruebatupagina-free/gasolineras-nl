@@ -226,7 +226,20 @@ function StatCard({ label, value, unit, color, icon: Icon, delay = 0 }) {
   )
 }
 
-export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, onViewMap, onSelectStation }) {
+function SkeletonRow() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', marginBottom: 6, background: 'rgba(255,255,255,0.03)', borderRadius: 14 }}>
+      <div className="skeleton" style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="skeleton" style={{ height: 13, width: '65%', borderRadius: 6, marginBottom: 6 }} />
+        <div className="skeleton" style={{ height: 11, width: '35%', borderRadius: 6 }} />
+      </div>
+      <div className="skeleton" style={{ width: 50, height: 18, borderRadius: 6 }} />
+    </div>
+  )
+}
+
+export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, isLoading, onViewMap, onSelectStation }) {
   const { data: stats } = useQuery({
     queryKey: ['stats'],
     queryFn: () => client.get('/estaciones/stats').then(r => r.data),
@@ -274,33 +287,38 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
         <BannerCarousel />
 
         {/* Stats row */}
-        {(statMin || statAvg || statMax) && (
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
-              Precios hoy — {combustible.charAt(0).toUpperCase() + combustible.slice(1)}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            Precios hoy — {combustible.charAt(0).toUpperCase() + combustible.slice(1)}
+          </div>
+          {isLoading && !statMin ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+              {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 72, borderRadius: 16 }} />)}
             </div>
+          ) : (statMin || statAvg || statMax) ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {statMin && <StatCard label="Mínimo" value={statMin} color="#22C55E" icon={TrendingDown} delay={1} />}
               {statAvg && <StatCard label="Promedio" value={statAvg} color="#5E6AD2" icon={Fuel} delay={2} />}
               {statMax && <StatCard label="Máximo" value={statMax} color="#EF4444" icon={TrendingUp} delay={3} />}
             </div>
-          </div>
-        )}
+          ) : null}
+        </div>
 
         {/* Nearest station */}
         <div style={{ marginBottom: 8 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
             Gasolinera más cercana
           </div>
-          {nearest
-            ? <NearestStationCard station={nearest} combustible={combustible} userLocation={userLocation} onViewMap={() => { onSelectStation(nearest); onViewMap() }} />
-            : (
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <MapPin size={24} color="var(--color-muted)" style={{ marginBottom: 8 }} />
-                <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>Activa tu ubicación para ver la más cercana</div>
-              </div>
-            )
-          }
+          {isLoading && !nearest ? (
+            <div className="skeleton" style={{ height: 82, borderRadius: 18, marginBottom: 16 }} />
+          ) : nearest ? (
+            <NearestStationCard station={nearest} combustible={combustible} userLocation={userLocation} onViewMap={() => { onSelectStation(nearest); onViewMap() }} />
+          ) : (
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, padding: '20px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <MapPin size={24} color="var(--color-muted)" style={{ marginBottom: 8 }} />
+              <div style={{ fontSize: 13, color: 'var(--color-muted)' }}>Activa tu ubicación para ver la más cercana</div>
+            </div>
+          )}
         </div>
 
         {/* Cheapest station */}
@@ -351,17 +369,21 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
         </div>
 
         {/* Station list preview */}
-        {estaciones?.length > 0 && (
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                Gasolineras cercanas
-              </div>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>
+              Gasolineras cercanas
+            </div>
+            {estaciones?.length > 0 && (
               <button onClick={onViewMap} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5E6AD2', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
                 Ver todas <ChevronRight size={12} />
               </button>
-            </div>
-            {estaciones.slice(0, 4).map((s, i) => {
+            )}
+          </div>
+          {isLoading && !estaciones?.length ? (
+            [1,2,3,4].map(i => <SkeletonRow key={i} />)
+          ) : estaciones?.length > 0 ? (
+            estaciones.slice(0, 4).map((s, i) => {
               const precio = s.precios?.[combustible]
               const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
               const dist = userLocation
@@ -391,9 +413,9 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
                   <ChevronRight size={13} color="rgba(255,255,255,0.2)" />
                 </div>
               )
-            })}
-          </div>
-        )}
+            })
+          ) : null}
+        </div>
       </div>
     </div>
   )

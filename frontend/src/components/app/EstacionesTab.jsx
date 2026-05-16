@@ -1,6 +1,13 @@
 import { useState, useMemo } from 'react'
 import { Search, MapPin, ChevronRight, Fuel, SlidersHorizontal } from 'lucide-react'
 
+function truncateName(name, max = 24) {
+  if (!name || name.length <= max) return name
+  const cut = name.slice(0, max)
+  const lastSpace = cut.lastIndexOf(' ')
+  return (lastSpace > max * 0.55 ? cut.slice(0, lastSpace) : cut) + '…'
+}
+
 const MUNICIPIOS = [
   'Todos',
   'Monterrey', 'San Pedro Garza García', 'Guadalupe', 'Apodaca',
@@ -45,8 +52,6 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
 
     return list.sort((a, b) => (a.precios[combustible] || 99) - (b.precios[combustible] || 99))
   }, [estaciones, query, municipio, combustible])
-
-  const cheapestPrice = filtered[0]?.precios?.[combustible]
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64 }}>
@@ -160,7 +165,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
           </div>
         ) : filtered.map((s, i) => {
           const precio = s.precios[combustible]
-          const isCheapest = precio === cheapestPrice
+          const isCheapest = i === 0
           const dist = userLocation ? distanceKm(userLocation.lat, userLocation.lng, s.lat, s.lng) : null
           return (
             <div
@@ -197,7 +202,7 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'white', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {s.nombre}
+                  {truncateName(s.nombre)}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                   {s.municipio && (

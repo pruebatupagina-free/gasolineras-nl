@@ -112,6 +112,7 @@ function MapPageInner() {
         combustible={combustible}
         userLocation={userLocation}
         syncCountdown={syncCountdown}
+        isLoading={isLoading}
         onViewMap={() => setActiveTab('mapa')}
         onSelectStation={handleSelectStation}
       />
@@ -223,9 +224,22 @@ function MapPageInner() {
         }} />
       )}
 
-      {/* Tab content */}
+      {/* Tab content — map stays mounted, other tabs fade on enter */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {tabContent[activeTab]}
+        <div style={{
+          position: 'absolute', inset: 0,
+          opacity: activeTab === 'mapa' ? 1 : 0,
+          pointerEvents: activeTab === 'mapa' ? 'auto' : 'none',
+          transition: 'opacity 0.15s ease',
+          zIndex: activeTab === 'mapa' ? 2 : 0,
+        }}>
+          {tabContent.mapa}
+        </div>
+        {activeTab !== 'mapa' && (
+          <div key={activeTab} className="animate-tab-enter" style={{ height: '100%', position: 'absolute', inset: 0, zIndex: 1 }}>
+            {tabContent[activeTab]}
+          </div>
+        )}
       </div>
 
       {/* Station detail overlay for non-map tabs */}
