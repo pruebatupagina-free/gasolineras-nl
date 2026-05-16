@@ -1,8 +1,10 @@
 import { useRef, useEffect, useState } from 'react'
-import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell, Share2 } from 'lucide-react'
+import { X, Navigation, Flag, Fuel, Clock, MapPin, TrendingUp, Loader2, Bell, Share2, Star, DollarSign } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ReportModal from './ReportModal'
 import AlertaModal from './AlertaModal'
+import RatingModal from './RatingModal'
+import PrecioReporteModal from './PrecioReporteModal'
 import client from '../../api/client'
 
 const COMBUST_COLORS = { magna: '#22C55E', premium: '#5E6AD2', diesel: '#F59E0B' }
@@ -90,22 +92,64 @@ function distanceKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+function StarRow({ rating, size = 13 }) {
+  return (
+    <div style={{ display: 'flex', gap: 2 }}>
+      {[1, 2, 3, 4, 5].map(n => (
+        <Star key={n} size={size}
+          fill={n <= Math.round(rating) ? '#F59E0B' : 'none'}
+          color={n <= Math.round(rating) ? '#F59E0B' : 'rgba(255,255,255,0.15)'}
+          strokeWidth={1.5}
+        />
+      ))}
+    </div>
+  )
+}
+
+function timeAgo(date) {
+  const mins = Math.round((Date.now() - new Date(date)) / 60000)
+  if (mins < 60) return `hace ${mins}min`
+  const hrs = Math.round(mins / 60)
+  return `hace ${hrs}h`
+}
+
 export default function StationSheet({ station, combustible, userLocation, onClose, onNavigate }) {
   const [reportCombust, setReportCombust] = useState(null)
   const [showAlerta, setShowAlerta] = useState(false)
+  const [showRating, setShowRating] = useState(false)
+  const [showPrecioReporte, setShowPrecioReporte] = useState(false)
   const [historial, setHistorial] = useState(null)
   const [loadingHist, setLoadingHist] = useState(false)
+  const [comunidad, setComunidad] = useState({ resenas: [], avgRating: null, totalRatings: 0, miResena: null })
+  const [preciosReportados, setPreciosReportados] = useState({})
   const sheetRef = useRef(null)
 
   useEffect(() => {
     if (!station?._id) return
     setHistorial(null)
     setLoadingHist(true)
+    setComunidad({ resenas: [], avgRating: null, totalRatings: 0, miResena: null })
+    setPreciosReportados({})
+
     client.get(`/estaciones/${station._id}/historial?dias=30`)
       .then(res => setHistorial(res.data.historial || []))
       .catch(() => setHistorial([]))
       .finally(() => setLoadingHist(false))
+
+    client.get(`/estaciones/${station._id}/resenas`)
+      .then(res => setComunidad(res.data))
+      .catch(() => {})
+
+    client.get(`/estaciones/${station._id}/precio-reporte`)
+      .then(res => setPreciosReportados(res.data))
+      .catch(() => {})
   }, [station?._id])
+
+  function refreshComunidad() {
+    if (!station?._id) return
+    client.get(`/estaciones/${station._id}/resenas`).then(res => setComunidad(res.data)).catch(() => {})
+    client.get(`/estaciones/${station._id}/precio-reporte`).then(res => setPreciosReportados(res.data)).catch(() => {})
+  }
 
   useEffect(() => {
     const el = sheetRef.current
@@ -293,8 +337,127 @@ export default function StationSheet({ station, combustible, userLocation, onClo
             </div>
           )}
 
+          {/* Comunidad: rating + precios reportados + reseñas */}
+          <div style={{ margin: '0 20px 16px' }}>
+            {/* Rating summary row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <StarRow rating={comunidad.avgRating || 0} size={14} />
+                {comunidad.avgRating && (
+                  <span style={{ fontSize: 13, color: '#F59E0B', fontWeight: 800 }}>{comunidad.avgRating}</span>
+                )}
+                <span style={{ fontSize: 12, color: 'var(--color-muted)' }}>
+                  {comunidad.totalRatings > 0
+                    ? `· ${comunidad.totalRatings} ${comunidad.totalRatings === 1 ? 'calificación' : 'calificaciones'}`
+                    : 'Sin calificaciones aún'}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowRating(true)}
+                style={{ fontSize: 12, color: '#F59E0B', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+              >
+                {comunidad.miResena ? 'Editar' : '+ Calificar'}
+              </button>
+            </div>
+
+            {/* Precios reportados por usuarios */}
+            {Object.keys(preciosReportados).length > 0 && (
+              <div style={{
+                background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)',
+                borderRadius: 12, padding: '10px 14px', marginBottom: 12,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#22C55E', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                    Precio reportado por usuarios
+                  </span>
+                  <button
+                    onClick={() => setShowPrecioReporte(true)}
+                    style={{ fontSize: 11, color: '#22C55E', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-body)' }}
+                  >
+                    + Reportar
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {['magna', 'premium', 'diesel'].map(fuel => {
+                    const r = preciosReportados[fuel]
+                    if (!r) return null
+                    return (
+                      <div key={fuel} style={{ flex: 1, textAlign: 'center' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: '#22C55E', fontFamily: 'var(--font-heading)' }}>
+                          ${r.precio.toFixed(2)}
+                        </div>
+                        <div style={{ fontSize: 9, color: 'var(--color-muted)', marginTop: 1 }}>{timeAgo(r.fecha)}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Reseñas recientes */}
+            {comunidad.resenas.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {comunidad.resenas.slice(0, 3).map(r => (
+                  <div key={r._id} style={{
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 12, padding: '10px 14px',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: r.texto ? 6 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{
+                          width: 28, height: 28, borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #5E6AD2, #4F5BC0)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 10, fontWeight: 800, color: 'white', flexShrink: 0,
+                        }}>
+                          {r.nombre_usuario.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'white' }}>{r.nombre_usuario}</div>
+                          <StarRow rating={r.estrellas} size={10} />
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 10, color: 'var(--color-muted)' }}>
+                        {new Date(r.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
+                    {r.texto && (
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5, marginTop: 4 }}>
+                        {r.texto}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* CTA si no hay precio reportado ni reseñas */}
+            {Object.keys(preciosReportados).length === 0 && comunidad.resenas.length === 0 && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setShowPrecioReporte(true)} className="pressable" style={{
+                  flex: 1, padding: '10px', borderRadius: 10, border: '1px dashed rgba(34,197,94,0.3)',
+                  background: 'transparent', color: '#22C55E', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'var(--font-body)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                  <DollarSign size={13} />
+                  Reportar precio
+                </button>
+                <button onClick={() => setShowRating(true)} className="pressable" style={{
+                  flex: 1, padding: '10px', borderRadius: 10, border: '1px dashed rgba(245,158,11,0.3)',
+                  background: 'transparent', color: '#F59E0B', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'var(--font-body)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}>
+                  <Star size={13} />
+                  Calificar
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Action buttons */}
-          <div style={{ padding: '0 20px', display: 'flex', gap: 10 }}>
+          <div style={{ padding: '0 20px', display: 'flex', gap: 8 }}>
             <a
               href={mapsUrl} target="_blank" rel="noreferrer"
               className="pressable"
@@ -310,41 +473,33 @@ export default function StationSheet({ station, combustible, userLocation, onClo
               <Navigation size={16} />
               Cómo llegar
             </a>
-            <button
-              onClick={() => setShowAlerta(true)}
-              className="pressable"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.25)',
-                color: '#818CF8', borderRadius: 14, padding: '14px 14px',
-                fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
-              }}
-            >
+            <button onClick={() => setShowAlerta(true)} className="pressable" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.25)',
+              color: '#818CF8', borderRadius: 14, padding: '14px 13px', cursor: 'pointer',
+            }}>
               <Bell size={15} />
-              Alerta
             </button>
-            <button
-              onClick={handleShare}
-              className="pressable"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)',
-                color: '#22C55E', borderRadius: 14, padding: '14px 14px',
-                fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
-              }}
-            >
+            <button onClick={handleShare} className="pressable" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)',
+              color: '#22C55E', borderRadius: 14, padding: '14px 13px', cursor: 'pointer',
+            }}>
               <Share2 size={15} />
             </button>
-            <button
-              onClick={() => setReportCombust(combustible)}
-              className="pressable"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)',
-                color: '#F59E0B', borderRadius: 14, padding: '14px 14px',
-                fontWeight: 600, fontSize: 13, fontFamily: 'var(--font-body)', cursor: 'pointer',
-              }}
-            >
+            <button onClick={() => setShowRating(true)} className="pressable" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: comunidad.miResena ? 'rgba(245,158,11,0.15)' : 'rgba(245,158,11,0.08)',
+              border: `1px solid ${comunidad.miResena ? 'rgba(245,158,11,0.4)' : 'rgba(245,158,11,0.2)'}`,
+              color: '#F59E0B', borderRadius: 14, padding: '14px 13px', cursor: 'pointer',
+            }}>
+              <Star size={15} fill={comunidad.miResena ? '#F59E0B' : 'none'} strokeWidth={comunidad.miResena ? 0 : 2} />
+            </button>
+            <button onClick={() => setReportCombust(combustible)} className="pressable" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+              color: '#EF4444', borderRadius: 14, padding: '14px 13px', cursor: 'pointer',
+            }}>
               <Flag size={15} />
             </button>
           </div>
@@ -365,6 +520,24 @@ export default function StationSheet({ station, combustible, userLocation, onClo
           combustible={combustible}
           precioActual={activePrecio}
           onClose={() => setShowAlerta(false)}
+        />
+      )}
+
+      {showRating && (
+        <RatingModal
+          station={station}
+          miResena={comunidad.miResena}
+          onClose={() => setShowRating(false)}
+          onSuccess={refreshComunidad}
+        />
+      )}
+
+      {showPrecioReporte && (
+        <PrecioReporteModal
+          station={station}
+          combustibleActivo={combustible}
+          onClose={() => setShowPrecioReporte(false)}
+          onSuccess={refreshComunidad}
         />
       )}
     </>

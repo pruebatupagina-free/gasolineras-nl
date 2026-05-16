@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
-import { Search, MapPin, ChevronRight, Fuel, SlidersHorizontal, GitCompare, Plus, Check } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { Search, MapPin, Fuel, SlidersHorizontal, GitCompare, Plus, Check, Star } from 'lucide-react'
 import ComparadorModal from './ComparadorModal'
+import client from '../../api/client'
 
 function truncateName(name, max = 24) {
   if (!name || name.length <= max) return name
@@ -35,7 +36,13 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
   const [showMunicipios, setShowMunicipios] = useState(false)
   const [compareIds, setCompareIds] = useState([])
   const [showComparador, setShowComparador] = useState(false)
+  const [sortBy, setSortBy] = useState('precio') // 'precio' | 'rating'
+  const [ratingsStats, setRatingsStats] = useState({})
   const c = COMBUST_COLORS[combustible] || COMBUST_COLORS.magna
+
+  useEffect(() => {
+    client.get('/estaciones/ratings-stats').then(res => setRatingsStats(res.data)).catch(() => {})
+  }, [])
 
   function toggleCompare(e, station) {
     e.stopPropagation()
@@ -64,8 +71,15 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
       list = list.filter(s => s.municipio?.toLowerCase().includes(municipio.toLowerCase()))
     }
 
+    if (sortBy === 'rating') {
+      return list.sort((a, b) => {
+        const ra = ratingsStats[a._id]?.avg || 0
+        const rb = ratingsStats[b._id]?.avg || 0
+        return rb - ra
+      })
+    }
     return list.sort((a, b) => (a.precios[combustible] || 99) - (b.precios[combustible] || 99))
-  }, [estaciones, query, municipio, combustible])
+  }, [estaciones, query, municipio, combustible, sortBy, ratingsStats])
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--color-bg)', paddingBottom: 64, position: 'relative' }}>
@@ -159,10 +173,22 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
         </div>
       </div>
 
-      {/* Count */}
-      <div style={{ padding: '8px 20px', fontSize: 11, color: '#8A8F98', fontWeight: 600, flexShrink: 0 }}>
-        {filtered.length} estaciones {municipio !== 'Todos' ? `en ${municipio}` : 'en MX'}
-        {query && ` · "${query}"`}
+      {/* Sort toggle + count */}
+      <div style={{ padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <span style={{ fontSize: 11, color: '#8A8F98', fontWeight: 600 }}>
+          {filtered.length} estaciones {municipio !== 'Todos' ? `en ${municipio}` : ''}{query ? ` · "${query}"` : ''}
+        </span>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: 2, gap: 2 }}>
+          {[{ key: 'precio', label: 'Precio' }, { key: 'rating', label: '⭐ Rating' }].map(s => (
+            <button key={s.key} onClick={() => setSortBy(s.key)} style={{
+              padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+              background: sortBy === s.key ? 'rgba(94,106,210,0.25)' : 'transparent',
+              color: sortBy === s.key ? '#A5B4FC' : '#8A8F98',
+              fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-body)',
+              transition: 'all 0.15s',
+            }}>{s.label}</button>
+          ))}
+        </div>
       </div>
 
       {/* List */}
@@ -231,6 +257,13 @@ export default function EstacionesTab({ estaciones = [], combustible, onCombusti
                     </span>
                   )}
                 </div>
+                {ratingsStats[s._id] && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 }}>
+                    <Star size={10} fill="#F59E0B" color="#F59E0B" />
+                    <span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 700 }}>{ratingsStats[s._id].avg}</span>
+                    <span style={{ fontSize: 10, color: '#8A8F98' }}>({ratingsStats[s._id].count})</span>
+                  </div>
+                )}
               </div>
 
               {/* Price */}
