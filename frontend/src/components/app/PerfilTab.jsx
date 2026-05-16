@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { LogOut, User, Shield, Info, ChevronRight, Bell, Zap, Star, Download } from 'lucide-react'
+import { LogOut, User, Shield, Info, ChevronRight, Bell, Zap, Star, Download, BellOff } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { usePush } from '../../hooks/usePush'
 
 const APP_VERSION = '2.0.0'
 
@@ -11,6 +12,7 @@ export default function PerfilTab() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const deferredPrompt = useRef(null)
   const [canInstall, setCanInstall] = useState(false)
+  const push = usePush()
 
   useEffect(() => {
     const handler = e => {
@@ -57,7 +59,13 @@ export default function PerfilTab() {
       items: [
         { icon: User, label: 'Mi perfil', sub: email, color: '#5E6AD2', onClick: null },
         { icon: Shield, label: 'Seguridad', sub: 'Contraseña y acceso', color: '#22C55E', onClick: null },
-        { icon: Bell, label: 'Notificaciones', sub: 'Alertas de precios', color: '#F59E0B', onClick: null },
+        {
+          icon: push.subscribed ? BellOff : Bell,
+          label: push.subscribed ? 'Desactivar notificaciones' : 'Activar notificaciones',
+          sub: push.subscribed ? 'Push activo — toca para desactivar' : push.permission === 'denied' ? 'Bloqueado en el navegador' : 'Alertas de precio fuera de la app',
+          color: '#F59E0B',
+          onClick: push.supported && push.permission !== 'denied' ? (push.subscribed ? push.unsubscribe : push.subscribe) : null,
+        },
       ],
     },
     {

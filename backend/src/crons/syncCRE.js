@@ -3,6 +3,7 @@ const Estacion = require('../models/Estacion')
 const PrecioHistorial = require('../models/PrecioHistorial')
 const Alerta = require('../models/Alerta')
 const Notificacion = require('../models/Notificacion')
+const PushSuscripcion = require('../models/PushSuscripcion')
 const { fetchEstacionesCRE } = require('../utils/creApi')
 const { geocodeAllPending } = require('../utils/geocode')
 
@@ -105,6 +106,22 @@ async function verificarAlertas() {
   await Alerta.updateMany({ _id: { $in: ids } }, { $set: { ultima_notificacion: ahora } })
 
   console.log(`[Alertas] 🔔 ${disparadas.length} alertas disparadas`)
+
+  // Enviar Web Push a usuarios suscritos
+  if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    const { enviarPush } = require('../utils/webpush')
+    for (const notif of notifs) {
+      const subs = await PushSuscripcion.find({ usuario_id: notif.usuario_id }).lean()
+      if (!subs.length) continue
+      const payload = {
+        title: 'GasMap — Alerta de precio',
+        body: notif.mensaje,
+        url: 'https://pruebatupagina-free.github.io/gasolineras-nl/',
+      }
+      const { ok, fail } = await enviarPush(subs, payload)
+      console.log(`[Push] usuario ${notif.usuario_id}: ${ok} ok, ${fail} fail`)
+    }
+  }
 }
 
 module.exports = function initCrons() {
