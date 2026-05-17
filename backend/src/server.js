@@ -27,7 +27,12 @@ app.use(rateLimit({
 }))
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ extended: true }))
-app.use(mongoSanitize())
+// Sanitize body/params only — Express 5 makes req.query a getter-only property
+app.use((req, _res, next) => {
+  if (req.body)   mongoSanitize.sanitize(req.body,   { replaceWith: '_' })
+  if (req.params) mongoSanitize.sanitize(req.params, { replaceWith: '_' })
+  next()
+})
 
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/estaciones', require('./routes/estaciones'))
