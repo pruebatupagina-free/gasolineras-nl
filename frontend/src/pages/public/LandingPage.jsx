@@ -132,33 +132,6 @@ function AppMockup({ stats }) {
   )
 }
 
-// ── Animated counter ───────────────────────────────────────────────────────
-function StatCount({ to, prefix = '', suffix = '' }) {
-  const [n, setN]     = useState(0)
-  const ref           = useRef(null)
-  const started       = useRef(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true
-        const t0  = Date.now()
-        const dur = 1600
-        const tick = () => {
-          const p     = Math.min((Date.now() - t0) / dur, 1)
-          const eased = 1 - Math.pow(1 - p, 3)
-          setN(Math.round(eased * to))
-          if (p < 1) requestAnimationFrame(tick)
-        }
-        requestAnimationFrame(tick)
-      }
-    }, { threshold: 0.4 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [to])
-  return <span ref={ref}>{prefix}{n.toLocaleString('es-MX')}{suffix}</span>
-}
 
 // ── Reveal on scroll ───────────────────────────────────────────────────────
 function Reveal({ children, delay = 0, from = 'bottom', style = {} }) {
@@ -255,30 +228,30 @@ export default function LandingPage() {
         }
         .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:48px; }
         @media(max-width:680px){ .footer-grid { grid-template-columns:1fr; gap:32px; } }
-        .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); }
-        @media(max-width:640px){ .stat-grid { grid-template-columns:repeat(2,1fr); } }
       `}</style>
 
       {/* Grain overlay */}
       <div style={{ position: 'fixed', inset: '-20%', zIndex: 45, pointerEvents: 'none', opacity: 0.055, mixBlendMode: 'overlay', backgroundImage: GRAIN_BG, backgroundRepeat: 'repeat', backgroundSize: '250px 250px', animation: 'grain 8s steps(10) infinite', willChange: 'transform' }} />
 
       {/* ── NAVBAR ── */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(5,5,6,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 58 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 32, height: 32, background: ACCENT, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Fuel size={16} color="white" />
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(5,5,6,0.8)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)', height: 58 }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+            <div style={{ width: 32, height: 32, background: ACCENT, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Fuel size={16} color="white" />
+            </div>
+            <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.3px' }}>GasMap</span>
           </div>
-          <span style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 18, letterSpacing: '-0.3px' }}>GasMap</span>
+          {showInstallBtn ? (
+            <button onClick={handleInstall} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: ACCENT, color: 'white', border: 'none', fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
+              <Download size={14} />Instalar app
+            </button>
+          ) : (
+            <Link to="/register" style={{ background: ACCENT, color: 'white', textDecoration: 'none', fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8 }}>
+              Abrir app
+            </Link>
+          )}
         </div>
-        {showInstallBtn ? (
-          <button onClick={handleInstall} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: ACCENT, color: 'white', border: 'none', fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8, cursor: 'pointer', fontFamily: 'var(--font-body)' }}>
-            <Download size={14} />Instalar app
-          </button>
-        ) : (
-          <Link to="/register" style={{ background: ACCENT, color: 'white', textDecoration: 'none', fontWeight: 600, fontSize: 13, padding: '8px 18px', borderRadius: 8 }}>
-            Abrir app
-          </Link>
-        )}
       </nav>
 
       {/* iOS modal */}
@@ -303,7 +276,7 @@ export default function LandingPage() {
       )}
 
       {/* ── HERO ── */}
-      <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '90px 28px 60px', maxWidth: 1140, margin: '0 auto', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
 
         {/* Dot grid texture — left side only */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '28px 28px', maskImage: 'radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 100%)', WebkitMaskImage: 'radial-gradient(ellipse 60% 80% at 20% 50%, black 0%, transparent 100%)' }} />
@@ -312,7 +285,8 @@ export default function LandingPage() {
         <div style={{ position: 'absolute', right: '10%', top: '20%', width: 560, height: 560, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(94,106,210,0.15) 0%, transparent 65%)', filter: 'blur(80px)' }} />
         <div style={{ position: 'absolute', left: '-5%', bottom: '10%', width: 320, height: 320, borderRadius: '50%', pointerEvents: 'none', background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 65%)', filter: 'blur(60px)' }} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 64, alignItems: 'center', position: 'relative', zIndex: 1 }}>
+        <div style={{ maxWidth: 1140, margin: '0 auto', width: '100%', padding: '90px 28px 60px', boxSizing: 'border-box', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 64, alignItems: 'center' }}>
 
           {/* Left */}
           <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(28px)', transition: 'opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1)' }}>
@@ -354,27 +328,7 @@ export default function LandingPage() {
             <AppMockup stats={stats} />
           </div>
         </div>
-      </section>
-
-      {/* ── CHANGE 5: Stats bar animada ── */}
-      <section style={{ padding: '0 28px 72px', maxWidth: 1140, margin: '0 auto' }}>
-        <Reveal>
-          <div className="stat-grid" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
-            {[
-              { to: 13247,  prefix: '',  suffix: '+',   label: 'Gasolineras registradas', color: '#22C55E' },
-              { to: 32,     prefix: '',  suffix: '',    label: 'Estados cubiertos',        color: '#5E6AD2' },
-              { to: 640,    prefix: '$', suffix: '/mes', label: 'Ahorro máximo mensual',   color: '#F59E0B' },
-              { to: 100,    prefix: '',  suffix: '% CRE', label: 'Datos oficiales',        color: '#06B6D4' },
-            ].map((s, i) => (
-              <div key={i} style={{ padding: '32px 20px', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(26px,3.5vw,40px)', color: s.color, letterSpacing: '-1px', marginBottom: 6 }}>
-                  <StatCount to={s.to} prefix={s.prefix} suffix={s.suffix} />
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--color-muted)', fontWeight: 500 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </Reveal>
+        </div>
       </section>
 
       {/* ── CHANGE 1: Bento grid features ── */}
