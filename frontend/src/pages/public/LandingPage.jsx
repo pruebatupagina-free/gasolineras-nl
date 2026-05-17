@@ -9,7 +9,7 @@ const APP_URL     = 'https://pruebatupagina-free.github.io/gasolineras-nl/'
 const GRAIN_BG    = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E")`
 
 /* Consistent container — used in every section */
-const W = { maxWidth: 1140, margin: '0 auto', padding: '0 28px' }
+const W = { maxWidth: 1140, margin: '0 auto', padding: '0 clamp(16px,4vw,28px)' }
 
 const TESTIMONIALS = [
   {
@@ -213,8 +213,7 @@ export default function LandingPage() {
         .bento-wide-l { grid-column:1/3; }
         .bento-wide-r { grid-column:2/4; }
         @media(max-width:720px){
-          .bento-grid { grid-template-columns:1fr; }
-          .bento-wide-l,.bento-wide-r { grid-column:1; }
+          .bento-grid { display:flex; flex-direction:column; gap:12px; }
         }
         .footer-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:48px; }
         @media(max-width:680px){ .footer-grid { grid-template-columns:1fr; gap:32px; } }
@@ -326,7 +325,7 @@ export default function LandingPage() {
           <div className="bento-grid">
             {/* Card 1 — Large left */}
             <Reveal delay={0} className="bento-wide-l">
-              <div style={{ background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.14)', borderRadius: 20, padding: '28px 26px', height: '100%' }}>
+              <div style={{ background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.14)', borderRadius: 20, padding: 'clamp(18px,3vw,28px) clamp(16px,3vw,26px)' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(34,197,94,0.12)', borderRadius: 8, padding: '4px 10px', marginBottom: 14 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#22C55E', letterSpacing: 1, textTransform: 'uppercase' }}>⬆ Precio más bajo primero</span>
                 </div>
@@ -339,7 +338,7 @@ export default function LandingPage() {
                     { rank: '#2', name: 'Oxxo Gas Centro',  dist: '2.8 km', price: '$19.15', badge: null,         bg: 'rgba(255,255,255,0.03)', border: 'rgba(255,255,255,0.07)', color: '#F59E0B' },
                     { rank: '#3', name: 'BP Periférico',    dist: '4.1 km', price: '$20.44', badge: null,         bg: 'rgba(255,255,255,0.02)', border: 'rgba(255,255,255,0.05)', color: '#EF4444' },
                   ].map((s, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: 12 }}>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: 12 }}>
                       <span style={{ fontSize: 16, width: 28, textAlign: 'center', flexShrink: 0 }}>{s.rank}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</div>
@@ -355,7 +354,7 @@ export default function LandingPage() {
 
             {/* Card 2 — Small: 32 estados */}
             <Reveal delay={80}>
-              <div style={{ background: 'rgba(94,106,210,0.05)', border: '1px solid rgba(94,106,210,0.15)', borderRadius: 20, padding: '28px 22px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', minHeight: 220 }}>
+              <div style={{ background: 'rgba(94,106,210,0.05)', border: '1px solid rgba(94,106,210,0.15)', borderRadius: 20, padding: 'clamp(18px,3vw,28px) clamp(16px,3vw,22px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(56px,8vw,80px)', color: ACCENT, letterSpacing: -4, lineHeight: 1, marginBottom: 6 }}>32</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-fg)', marginBottom: 4 }}>estados cubiertos</div>
                 <div style={{ fontSize: 12, color: 'var(--color-muted)', marginBottom: 20 }}>toda la República Mexicana</div>
@@ -368,7 +367,7 @@ export default function LandingPage() {
 
             {/* Card 3 — Small: sin descarga */}
             <Reveal delay={110}>
-              <div style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.14)', borderRadius: 20, padding: '28px 22px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 200 }}>
+              <div style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.14)', borderRadius: 20, padding: 'clamp(18px,3vw,28px) clamp(16px,3vw,22px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '9px 14px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ display: 'flex', gap: 5 }}>
                     {['#EF4444','#F59E0B','#22C55E'].map(c => <div key={c} style={{ width: 7, height: 7, borderRadius: '50%', background: c, opacity: 0.7 }} />)}
@@ -383,7 +382,7 @@ export default function LandingPage() {
 
             {/* Card 4 — Large right */}
             <Reveal delay={160} className="bento-wide-r">
-              <div style={{ background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.14)', borderRadius: 20, padding: '28px 26px', height: '100%' }}>
+              <div style={{ background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.14)', borderRadius: 20, padding: 'clamp(18px,3vw,28px) clamp(16px,3vw,26px)' }}>
                 <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 'clamp(48px,7vw,80px)', letterSpacing: -3, lineHeight: 1, marginBottom: 10, background: 'linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.45) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Gratis
                 </div>
