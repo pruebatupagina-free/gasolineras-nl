@@ -3,6 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
+const mongoSanitize = require('express-mongo-sanitize')
 const mongoose = require('mongoose')
 
 const app = express()
@@ -26,6 +27,7 @@ app.use(rateLimit({
 }))
 app.use(express.json({ limit: '5mb' }))
 app.use(express.urlencoded({ extended: true }))
+app.use(mongoSanitize())
 
 app.use('/api/auth', require('./routes/auth'))
 app.use('/api/estaciones', require('./routes/estaciones'))
