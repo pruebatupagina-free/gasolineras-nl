@@ -131,7 +131,7 @@ async function run() {
       const sheetVisible = await p.locator('[class*="sheet"], [class*="Sheet"], text=Cómo llegar').first().isVisible({ timeout: 4000 }).catch(() => false)
       sheetVisible ? ok('StationSheet abierto al clic en estación') : warn('StationSheet no detectado')
       await p.keyboard.press('Escape')
-      await p.waitForTimeout(600)
+      await p.waitForTimeout(1200)
       const sheetClosed = !(await p.locator('text=Cómo llegar').first().isVisible({ timeout: 1000 }).catch(() => false))
       sheetClosed ? ok('StationSheet cerrado con Escape') : warn('StationSheet no cerró con Escape')
     } else {
@@ -148,10 +148,14 @@ async function run() {
       const badge = await p.locator('span:has-text("Próximo"), span:has-text("PRÓXIMO")').first().isVisible({ timeout: 2000 }).catch(() => false)
       badge ? ok('Badge "Próximo" visible en card') : warn('Badge Próximo no detectado')
 
-      // Scroll card into view and click parent button (force bypasses Leaflet SVG overlap)
+      // Click via JS evaluate — finds the parent button and dispatches click directly
       await descCard.scrollIntoViewIfNeeded().catch(() => {})
-      await p.waitForTimeout(300)
-      await descCard.click({ force: true })
+      await p.waitForTimeout(500)
+      await p.evaluate(() => {
+        const btn = Array.from(document.querySelectorAll('button')).find(b =>
+          b.textContent.includes('Descuentos en gasolina'))
+        if (btn) btn.click()
+      })
       await p.waitForTimeout(1500)
       await shot(p, '05-descuentos-modal.png')
 
@@ -164,14 +168,23 @@ async function run() {
       // Unirse a la waitlist
       if (modal) {
         await p.locator('text=Quiero acceso anticipado').first().click()
-        await p.waitForTimeout(1500)
-        const success = await p.locator('text=¡Ya estás en la lista!, text=Lista, text=confirmado, [class*="success"]').first().isVisible({ timeout: 4000 }).catch(() => false)
-        success ? ok('Unirse a waitlist → estado de éxito visible') : warn('Estado éxito de waitlist no detectado')
+        await p.waitForTimeout(1800)
+        const success = await p.locator('text=¡Listo!').first().isVisible({ timeout: 4000 }).catch(() => false)
+        success ? ok('Unirse a waitlist → estado "¡Listo!" visible') : warn('Estado éxito de waitlist no detectado')
         await shot(p, '06-descuentos-joined.png')
 
-        // Cerrar modal con X
-        await p.locator('button[aria-label*="cerrar"], button[aria-label*="Cerrar"], button:has(svg)').last().click().catch(() => {})
-        await p.waitForTimeout(600)
+        // Cerrar modal con botón "Cerrar" o Escape
+        const closeBtn = p.locator('button:has-text("Cerrar")').first()
+        if (await closeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await closeBtn.click()
+        } else {
+          await p.keyboard.press('Escape')
+        }
+        await p.waitForTimeout(800)
+        // Verify modal is closed before proceeding
+        await p.locator('text=Quiero acceso anticipado').first().isVisible({ timeout: 1000 })
+          .then(() => p.keyboard.press('Escape')).catch(() => {})
+        await p.waitForTimeout(500)
       }
     }
 
