@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { TrendingDown, TrendingUp, MapPin, Navigation, ChevronRight, Zap, Clock, Fuel, ArrowRight, Star, Bell, Heart } from 'lucide-react'
+import { TrendingDown, TrendingUp, MapPin, Navigation, ChevronRight, Zap, Clock, Fuel, ArrowRight, Star, Bell, Heart, Gift } from 'lucide-react'
 import client from '../../api/client'
 import { useFavoritos } from '../../hooks/useFavoritos'
+import DescuentosModal from './DescuentosModal'
 
 const SLIDES = [
   {
@@ -253,6 +254,7 @@ function SkeletonRow() {
 }
 
 export default function HomeTab({ user, estaciones, combustible, userLocation, syncCountdown, isLoading, onViewMap, onSelectStation, noLeidas = 0, onOpenNotificaciones }) {
+  const [showDescuentos, setShowDescuentos] = useState(false)
   const { ids: favIds } = useFavoritos()
   const { data: stats } = useQuery({
     queryKey: ['stats'],
@@ -336,6 +338,37 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
 
         {/* Banner carousel */}
         <BannerCarousel />
+
+        {/* Descuentos — Smoke test card */}
+        <button
+          onClick={() => setShowDescuentos(true)}
+          className="pressable"
+          style={{
+            width: '100%', margin: '0 0 16px', padding: '16px 18px',
+            background: 'linear-gradient(135deg, rgba(251,146,60,0.12) 0%, rgba(234,88,12,0.06) 100%)',
+            border: '1px solid rgba(251,146,60,0.28)',
+            borderRadius: 18, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 14,
+            position: 'relative', overflow: 'hidden',
+            textAlign: 'left',
+          }}
+        >
+          {/* Glow */}
+          <div style={{ position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(251,146,60,0.2)', filter: 'blur(30px)', pointerEvents: 'none' }} />
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(251,146,60,0.15)', border: '1px solid rgba(251,146,60,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Gift size={20} color="#FB923C" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: 'var(--font-heading)' }}>Descuentos en gasolina</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#FB923C', background: 'rgba(251,146,60,0.15)', border: '1px solid rgba(251,146,60,0.3)', borderRadius: 4, padding: '2px 5px', letterSpacing: 0.5, textTransform: 'uppercase' }}>Próximo</span>
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(251,146,60,0.8)' }}>Hasta $0.50/L · Gotas · Estaciones afiliadas</div>
+          </div>
+          <ChevronRight size={16} color="rgba(251,146,60,0.6)" style={{ flexShrink: 0 }} />
+        </button>
+
+        {showDescuentos && <DescuentosModal onClose={() => setShowDescuentos(false)} />}
 
         {/* Stats row */}
         <div style={{ marginBottom: 16 }}>

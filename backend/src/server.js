@@ -34,6 +34,7 @@ app.use('/api/reportes', require('./routes/reportes'))
 app.use('/api/alertas', require('./routes/alertas'))
 app.use('/api/notificaciones', require('./routes/notificaciones'))
 app.use('/api/push', require('./routes/push'))
+app.use('/api/descuentos', require('./routes/descuentos'))
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', ts: new Date(), env: process.env.NODE_ENV })
