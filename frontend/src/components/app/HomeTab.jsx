@@ -347,7 +347,7 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
             width: '100%', margin: '0 0 16px', padding: '16px 18px',
             background: 'linear-gradient(135deg, rgba(251,146,60,0.12) 0%, rgba(234,88,12,0.06) 100%)',
             border: '1px solid rgba(251,146,60,0.28)',
-            borderRadius: 18, cursor: 'pointer',
+            borderRadius: 18,
             display: 'flex', alignItems: 'center', gap: 14,
             position: 'relative', overflow: 'hidden',
             textAlign: 'left',
@@ -363,7 +363,7 @@ export default function HomeTab({ user, estaciones, combustible, userLocation, s
               <span style={{ fontSize: 14, fontWeight: 700, color: 'white', fontFamily: 'var(--font-heading)' }}>Descuentos en gasolina</span>
               <span style={{ fontSize: 9, fontWeight: 800, color: '#FB923C', background: 'rgba(251,146,60,0.15)', border: '1px solid rgba(251,146,60,0.3)', borderRadius: 4, padding: '2px 5px', letterSpacing: 0.5, textTransform: 'uppercase' }}>Próximo</span>
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(251,146,60,0.8)' }}>Hasta $0.50/L · Gotas · Estaciones afiliadas</div>
+            <div style={{ fontSize: 12, color: 'rgba(251,146,60,0.8)' }}>Ahorra en cada carga · Gotas · Estaciones afiliadas</div>
           </div>
           <ChevronRight size={16} color="rgba(251,146,60,0.6)" style={{ flexShrink: 0 }} />
         </button>
